@@ -1,7 +1,7 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
 public class MoveCalculator {
     protected ChessBoard board;
@@ -15,6 +15,9 @@ public class MoveCalculator {
     }
 
     protected boolean isOpponentPiece(ChessPosition pos) {
+        if (board.getPiece(pos) == null) {
+            return false;
+        }
         return board.getPiece(pos).getTeamColor() != piece.getTeamColor();
     }
 
@@ -34,7 +37,7 @@ public class MoveCalculator {
     }
 
     protected Collection<ChessMove> straitMoves() {
-        Collection<ChessMove> possibleMoves = List.of();
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
 
         findMoves(possibleMoves, 1, 0);
         findMoves(possibleMoves, -1, 0);
@@ -45,7 +48,7 @@ public class MoveCalculator {
     }
 
     protected Collection<ChessMove> diagonalMoves() {
-        Collection<ChessMove> possibleMoves = List.of();
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
 
         findMoves(possibleMoves, 1, 1);
         findMoves(possibleMoves, -1, 1);
@@ -58,23 +61,21 @@ public class MoveCalculator {
     private void findMoves(Collection<ChessMove> possibleMoves, int x, int y) {
         int incrementX = x;
         int incrementY = y;
-        for (int i = 0; i < 9; i++) {
-            ChessPosition checkPos = new ChessPosition(position.getRow() + x, position.getColumn() + y);
-            if (addMove(possibleMoves, checkPos)) {
-                break;
-            }
+        ChessPosition checkPos = new ChessPosition(position.getRow() + x, position.getColumn() + y);
+        while (addMove(possibleMoves, checkPos)) {
             x = x + incrementX;
             y = y + incrementY;
+            checkPos = new ChessPosition(position.getRow() + x, position.getColumn() + y);
         }
     }
 
     private boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
         if (canMove(checkPos)) {
-            ChessMove move = new ChessMove(position, checkPos, piece.getPieceType());
+            ChessMove move = new ChessMove(position, checkPos, null);
             possibleMoves.add(move);
         } else {
-            return true;
+            return false;
         }
-        return isOpponentPiece(position);
+        return !isOpponentPiece(checkPos);
     }
 }
