@@ -3,6 +3,7 @@ package chess;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ScheduledExecutorService;
 
 public class MoveCalculator {
     protected ChessBoard board;
@@ -66,6 +67,31 @@ public class MoveCalculator {
             }
         }
         return possibleMoves;
+    }
+
+    protected Collection<ChessMove> diagonalMoves() {
+        Collection<ChessMove> possibleMoves = List.of();
+
+        diagonal(possibleMoves, 1, 1);
+        diagonal(possibleMoves, -1, 1);
+        diagonal(possibleMoves, 1, -1);
+        diagonal(possibleMoves, -1, -1);
+
+        return possibleMoves;
+    }
+
+
+    private void diagonal(Collection<ChessMove> possibleMoves, int x, int y) {
+        int incrementX = x;
+        int incrementY = y;
+        for (int i = 0; i < 7; i++) {
+            ChessPosition checkPos = new ChessPosition(position.getRow() + x, position.getColumn() + y);
+            if (addMove(possibleMoves, checkPos)) {
+                break;
+            }
+            x = x + incrementX;
+            y = y + incrementY;
+        }
     }
 
 
