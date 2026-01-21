@@ -25,9 +25,9 @@ public class PawnMoveCalculator extends MoveCalculator {
 
     private void forward(Collection<ChessMove> possibleMoves, int i) {
         ChessPosition checkPos = new ChessPosition(position.getRow() + i, position.getColumn());
+        if (!canMove(checkPos)) return;
         if (!isOpponentPiece(checkPos)) {
-            addMove(possibleMoves, checkPos);
-            if (inStartingPosition() && i < 2 && i > -2) {
+            if (addMove(possibleMoves, checkPos) && inStartingPosition() && i < 2 && i > -2) {
                 forward(possibleMoves, i*2);
             }
         }
@@ -36,11 +36,15 @@ public class PawnMoveCalculator extends MoveCalculator {
     private void diagonals(Collection<ChessMove> possibleMoves, int i) {
         ChessPosition checkLeft = new ChessPosition(position.getRow() + i, position.getColumn() - 1);
         ChessPosition checkRight = new ChessPosition(position.getRow() + i, position.getColumn() + 1);
-        if (isOpponentPiece(checkLeft)) {
-            addMove(possibleMoves, checkLeft);
+        if (canMove(checkLeft)) {
+            if (isOpponentPiece(checkLeft)) {
+                addMove(possibleMoves, checkLeft);
+            }
         }
-        if (isOpponentPiece(checkRight)) {
-            addMove(possibleMoves, checkRight);
+        if (canMove(checkRight)) {
+            if (isOpponentPiece(checkRight)) {
+                addMove(possibleMoves, checkRight);
+            }
         }
     }
 
