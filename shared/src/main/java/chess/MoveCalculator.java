@@ -69,7 +69,7 @@ public class MoveCalculator {
         }
     }
 
-    private boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
+    protected boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
         if (canMove(checkPos)) {
             ChessMove move = new ChessMove(position, checkPos, null);
             possibleMoves.add(move);
