@@ -14,6 +14,10 @@ public class MoveCalculator {
         piece = board.getPiece(position);
     }
 
+    protected boolean isOpponentPiece(ChessPosition pos) {
+        return board.getPiece(pos).getTeamColor() != piece.getTeamColor();
+    }
+
     protected boolean canMove(ChessPosition pos) {
 
         if (pos.getColumn() > 8 || pos.getRow() > 8) {
@@ -23,35 +27,36 @@ public class MoveCalculator {
             return false;
         }
 
-        ChessPiece obstacle = board.getPiece(pos);
-        if (obstacle == null) {
+        if (board.getPiece(pos) == null) {
             return true;
         }
-        return obstacle.getTeamColor() != piece.getTeamColor();
+        return isOpponentPiece(pos);
     }
 
     protected Collection<ChessMove> verticalMoves() {
         Collection<ChessMove> possibleMoves = List.of();
         for (int i = position.getRow(); i < 9; i++) {
-            ChessPosition checkPos = new ChessPosition(i, position.getColumn());
-            if (canMove(checkPos)) {
-                ChessMove move = new ChessMove(position, checkPos, piece.getPieceType());
-                possibleMoves.add(move);
-            }
-            else {
+            if (checkPosition(possibleMoves, i)) {
                 break;
             }
         }
         for (int i = position.getRow(); i > 0; i--) {
-            ChessPosition checkPos = new ChessPosition(i, position.getColumn());
-            if (canMove(checkPos)) {
-                ChessMove move = new ChessMove(position, checkPos, piece.getPieceType());
-                possibleMoves.add(move);
-            }
-            else {
+            if (checkPosition(possibleMoves, i)) {
                 break;
             }
         }
         return possibleMoves;
+    }
+
+    private boolean checkPosition(Collection<ChessMove> possibleMoves, int i) {
+        ChessPosition checkPos = new ChessPosition(i, position.getColumn());
+        if (canMove(checkPos)) {
+            ChessMove move = new ChessMove(position, checkPos, piece.getPieceType());
+            possibleMoves.add(move);
+        }
+        else {
+            return true;
+        }
+        return isOpponentPiece(position);
     }
 }
