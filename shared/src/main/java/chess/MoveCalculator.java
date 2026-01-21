@@ -2,8 +2,6 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ScheduledExecutorService;
 
 public class MoveCalculator {
     protected ChessBoard board;
@@ -25,7 +23,7 @@ public class MoveCalculator {
         if (pos.getColumn() > 8 || pos.getRow() > 8) {
             return false;
         }
-        if (pos.getColumn() < 0 || pos.getRow() < 0) {
+        if (pos.getColumn() < 1 || pos.getRow() < 1) {
             return false;
         }
 
@@ -35,56 +33,32 @@ public class MoveCalculator {
         return isOpponentPiece(pos);
     }
 
-    protected Collection<ChessMove> verticalMoves() {
+    protected Collection<ChessMove> straitMoves() {
         Collection<ChessMove> possibleMoves = List.of();
-        for (int i = position.getRow(); i < 9; i++) {
-            ChessPosition checkUp = new ChessPosition(i, position.getColumn());
-            if (addMove(possibleMoves, checkUp)) {
-                break;
-            }
-        }
-        for (int i = position.getRow(); i > 0; i--) {
-            ChessPosition checkDown = new ChessPosition(i, position.getColumn());
-            if (addMove(possibleMoves, checkDown)) {
-                break;
-            }
-        }
-        return possibleMoves;
-    }
 
-    protected Collection<ChessMove> horizontalMoves() {
-        Collection<ChessMove> possibleMoves = List.of();
-        for (int i = position.getColumn(); i < 9; i++) {
-            ChessPosition checkRight = new ChessPosition(position.getRow(), i);
-            if (addMove(possibleMoves, checkRight)) {
-                break;
-            }
-        }
-        for (int i = position.getColumn(); i > 0; i--) {
-            ChessPosition checkLeft = new ChessPosition(position.getRow(), i);
-            if (addMove(possibleMoves, checkLeft)) {
-                break;
-            }
-        }
+        findMoves(possibleMoves, 1, 0);
+        findMoves(possibleMoves, -1, 0);
+        findMoves(possibleMoves, 0, 1);
+        findMoves(possibleMoves, 0, -1);
+
         return possibleMoves;
     }
 
     protected Collection<ChessMove> diagonalMoves() {
         Collection<ChessMove> possibleMoves = List.of();
 
-        diagonal(possibleMoves, 1, 1);
-        diagonal(possibleMoves, -1, 1);
-        diagonal(possibleMoves, 1, -1);
-        diagonal(possibleMoves, -1, -1);
+        findMoves(possibleMoves, 1, 1);
+        findMoves(possibleMoves, -1, 1);
+        findMoves(possibleMoves, 1, -1);
+        findMoves(possibleMoves, -1, -1);
 
         return possibleMoves;
     }
 
-
-    private void diagonal(Collection<ChessMove> possibleMoves, int x, int y) {
+    private void findMoves(Collection<ChessMove> possibleMoves, int x, int y) {
         int incrementX = x;
         int incrementY = y;
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < 9; i++) {
             ChessPosition checkPos = new ChessPosition(position.getRow() + x, position.getColumn() + y);
             if (addMove(possibleMoves, checkPos)) {
                 break;
@@ -93,7 +67,6 @@ public class MoveCalculator {
             y = y + incrementY;
         }
     }
-
 
     private boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
         if (canMove(checkPos)) {
