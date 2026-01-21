@@ -2,6 +2,7 @@ package chess;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.concurrent.Callable;
 
 public class MoveCalculator {
     protected ChessBoard board;
@@ -36,25 +37,43 @@ public class MoveCalculator {
     protected Collection<ChessMove> verticalMoves() {
         Collection<ChessMove> possibleMoves = List.of();
         for (int i = position.getRow(); i < 9; i++) {
-            if (checkPosition(possibleMoves, i)) {
+            ChessPosition checkUp = new ChessPosition(i, position.getColumn());
+            if (addMove(possibleMoves, checkUp)) {
                 break;
             }
         }
         for (int i = position.getRow(); i > 0; i--) {
-            if (checkPosition(possibleMoves, i)) {
+            ChessPosition checkDown = new ChessPosition(i, position.getColumn());
+            if (addMove(possibleMoves, checkDown)) {
                 break;
             }
         }
         return possibleMoves;
     }
 
-    private boolean checkPosition(Collection<ChessMove> possibleMoves, int i) {
-        ChessPosition checkPos = new ChessPosition(i, position.getColumn());
+    protected Collection<ChessMove> horizontalMoves() {
+        Collection<ChessMove> possibleMoves = List.of();
+        for (int i = position.getColumn(); i < 9; i++) {
+            ChessPosition checkRight = new ChessPosition(position.getRow(), i);
+            if (addMove(possibleMoves, checkRight)) {
+                break;
+            }
+        }
+        for (int i = position.getColumn(); i > 0; i--) {
+            ChessPosition checkLeft = new ChessPosition(position.getRow(), i);
+            if (addMove(possibleMoves, checkLeft)) {
+                break;
+            }
+        }
+        return possibleMoves;
+    }
+
+
+    private boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
         if (canMove(checkPos)) {
             ChessMove move = new ChessMove(position, checkPos, piece.getPieceType());
             possibleMoves.add(move);
-        }
-        else {
+        } else {
             return true;
         }
         return isOpponentPiece(position);
