@@ -51,19 +51,20 @@ public class PawnMoveCalculator extends MoveCalculator {
     @Override
     protected boolean addMove(Collection<ChessMove> possibleMoves, ChessPosition checkPos) {
         if (canMove(checkPos)) {
-            possibleMoves.add(makeMove(checkPos));
+            if (willPromote()){
+                possibleMoves.add(new ChessMove(position, checkPos, ChessPiece.PieceType.QUEEN));
+                possibleMoves.add(new ChessMove(position, checkPos, ChessPiece.PieceType.ROOK));
+                possibleMoves.add(new ChessMove(position, checkPos, ChessPiece.PieceType.BISHOP));
+                possibleMoves.add(new ChessMove(position, checkPos, ChessPiece.PieceType.KNIGHT));
+            } else {
+                possibleMoves.add(new ChessMove(position, checkPos, null));
+            }
         } else {
             return false;
         }
         return !isOpponentPiece(checkPos);
     }
 
-    private ChessMove makeMove(ChessPosition pos) {
-        if (willPromote()) {
-            return new ChessMove(position, pos, ChessPiece.PieceType.QUEEN);
-        }
-        return new ChessMove(position, pos, null);
-    }
 
     private boolean willPromote(){
         if (position.getRow() == 2 && piece.getTeamColor() == ChessGame.TeamColor.BLACK)
