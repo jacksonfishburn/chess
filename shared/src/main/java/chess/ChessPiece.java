@@ -1,7 +1,9 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
+import java.util.Queue;
 
 /**
  * Represents a single chess piece
@@ -67,6 +69,13 @@ public class ChessPiece {
      * @return Collection of valid moves
      */
     public Collection<ChessMove> pieceMoves(ChessBoard board, ChessPosition myPosition) {
-        throw new RuntimeException("Not implemented");
+        return switch (type) {
+            case PieceType.KING -> new KingMoveCalculator(board, myPosition).moves();
+            case PieceType.QUEEN -> new QueenMoveCalculator(board, myPosition).moves();
+            case PieceType.BISHOP -> new BishopMoveCalculator(board, myPosition).moves();
+            case PieceType.KNIGHT -> new KnightMoveCalculator(board, myPosition).moves();
+            case PieceType.ROOK -> new RookMoveCalculator(board, myPosition).moves();
+            case PieceType.PAWN -> new PawnMoveCalculator(board, myPosition).moves();
+        };
     }
 }
