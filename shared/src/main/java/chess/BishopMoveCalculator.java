@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class BishopMoveCalculator extends MoveCalculator{
@@ -9,6 +10,13 @@ public class BishopMoveCalculator extends MoveCalculator{
     }
 
     public Collection<ChessMove> moves() {
-        return diagonalMoves();
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
+
+        addMovesInDirection(possibleMoves, 1, 1);
+        addMovesInDirection(possibleMoves, -1, 1);
+        addMovesInDirection(possibleMoves, 1, -1);
+        addMovesInDirection(possibleMoves, -1, -1);
+
+        return possibleMoves;
     }
 }

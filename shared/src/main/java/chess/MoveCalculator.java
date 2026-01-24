@@ -1,6 +1,5 @@
 package chess;
 
-import java.util.ArrayList;
 import java.util.Collection;
 
 public class MoveCalculator {
@@ -45,7 +44,7 @@ public class MoveCalculator {
         return !isOpponentPiece(checkPos);
     }
 
-    private void addMovesInDirection(Collection<ChessMove> possibleMoves, int dx, int dy) {
+    protected void addMovesInDirection(Collection<ChessMove> possibleMoves, int dx, int dy) {
         int incrementX = dx;
         int incrementY = dy;
         ChessPosition checkPos = new ChessPosition(position.getRow() + dx, position.getColumn() + dy);
@@ -54,27 +53,5 @@ public class MoveCalculator {
             dy = dy + incrementY;
             checkPos = new ChessPosition(position.getRow() + dx, position.getColumn() + dy);
         }
-    }
-
-    protected Collection<ChessMove> straitMoves() {
-        Collection<ChessMove> possibleMoves = new ArrayList<>();
-
-        addMovesInDirection(possibleMoves, 1, 0);
-        addMovesInDirection(possibleMoves, -1, 0);
-        addMovesInDirection(possibleMoves, 0, 1);
-        addMovesInDirection(possibleMoves, 0, -1);
-
-        return possibleMoves;
-    }
-
-    protected Collection<ChessMove> diagonalMoves() {
-        Collection<ChessMove> possibleMoves = new ArrayList<>();
-
-        addMovesInDirection(possibleMoves, 1, 1);
-        addMovesInDirection(possibleMoves, -1, 1);
-        addMovesInDirection(possibleMoves, 1, -1);
-        addMovesInDirection(possibleMoves, -1, -1);
-
-        return possibleMoves;
     }
 }

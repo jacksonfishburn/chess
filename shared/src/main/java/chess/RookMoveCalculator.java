@@ -1,5 +1,6 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 public class RookMoveCalculator extends MoveCalculator {
@@ -9,6 +10,13 @@ public class RookMoveCalculator extends MoveCalculator {
     }
 
     public Collection<ChessMove> moves() {
-        return straitMoves();
+        Collection<ChessMove> possibleMoves = new ArrayList<>();
+
+        addMovesInDirection(possibleMoves, 1, 0);
+        addMovesInDirection(possibleMoves, -1, 0);
+        addMovesInDirection(possibleMoves, 0, 1);
+        addMovesInDirection(possibleMoves, 0, -1);
+
+        return possibleMoves;
     }
 }

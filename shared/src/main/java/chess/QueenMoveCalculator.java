@@ -10,10 +10,8 @@ public class QueenMoveCalculator extends MoveCalculator{
     }
      public Collection<ChessMove> moves() {
 
-        Collection<ChessMove> possibleMoves = straitMoves();
-        Collection<ChessMove> diagonal = diagonalMoves();
-
-        possibleMoves.addAll(diagonal);
+        Collection<ChessMove> possibleMoves = new BishopMoveCalculator(board, position).moves();
+        possibleMoves.addAll(new RookMoveCalculator(board, position).moves());
 
         return possibleMoves;
      }
