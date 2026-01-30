@@ -48,8 +48,7 @@ public class ChessGame {
 
     /**
      * Gets a valid moves for a piece at the given location
-     *
-     * @param startPosition the piece to get valid moves for
+     * param StartPosition the piece to get valid moves for
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
@@ -72,20 +71,17 @@ public class ChessGame {
 
     private boolean cantMove(ChessMove move) {
         ChessBoard boardBackup = board.clone();
-        TeamColor teamBackup = playingTeam;
+
+        ChessPiece piece = board.getPiece(move.getStartPosition());
         boolean cantMove = false;
 
+        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(move.getEndPosition(), piece);
 
-        try {
-            makeMove(move);
-            if (isInCheck(teamBackup)){
-                cantMove = true;
-            }
-        } catch (InvalidMoveException e) {
-            return true;
+        if (isInCheck(piece.getTeamColor())){
+            cantMove = true;
         }
 
-        playingTeam = teamBackup;
         board = boardBackup;
         return cantMove;
     }
