@@ -1,6 +1,8 @@
 package chess;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 /**
  * For a class that can manage a chess game, making moves on a board
@@ -51,6 +53,23 @@ public class ChessGame {
      * @return Set of valid moves for requested piece, or null if no piece at
      * startPosition
      */
+    private Collection<ChessMove> allTeamMoves(TeamColor team) {
+        Collection<ChessMove> moves = new ArrayList<>();
+
+        for (int x = 1; x < 9; x++){
+            for (int y = 1; y < 9; y++) {
+                ChessPosition pos = new ChessPosition(x, y);
+                ChessPiece piece = board.getPiece(pos);
+
+                if (piece != null && piece.getTeamColor() == team) {
+                    moves.addAll(piece.pieceMoves(board, pos));
+                }
+            }
+        }
+        return moves;
+    }
+
+
     public Collection<ChessMove> validMoves(ChessPosition startPosition) {
         throw new RuntimeException("Not implemented");
     }
@@ -72,9 +91,18 @@ public class ChessGame {
      * @return True if the specified team is in check
      */
     public boolean isInCheck(TeamColor teamColor) {
-        ChessBoard originalBoard = board;
+        TeamColor oppColor = TeamColor.WHITE;
+        if (teamColor == TeamColor.WHITE) oppColor = TeamColor.BLACK;
 
-        return true;
+        Collection<ChessMove> oppMoves = allTeamMoves(oppColor);
+
+        for (ChessMove move : oppMoves) {
+            ChessPosition pos = move.getEndPosition();
+            if (Objects.equals(board.getPiece(pos), new ChessPiece(teamColor, ChessPiece.PieceType.KING))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
