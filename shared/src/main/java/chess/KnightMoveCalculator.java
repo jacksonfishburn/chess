@@ -20,7 +20,9 @@ public class KnightMoveCalculator extends MoveCalculator {
     }
 
     private void makeMoves(Collection<ChessMove> possibleMoves, int i) {
-        if (i == 0) return;
+        if (i == 0) {
+            return;
+        }
         ChessPosition pos1;
         ChessPosition pos2;
         if (Math.abs(i) == 2) {

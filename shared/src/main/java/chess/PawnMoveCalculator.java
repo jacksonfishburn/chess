@@ -25,7 +25,9 @@ public class PawnMoveCalculator extends MoveCalculator {
 
     private void forward(Collection<ChessMove> possibleMoves, int i) {
         ChessPosition checkPos = new ChessPosition(position.getRow() + i, position.getColumn());
-        if (!canMove(checkPos)) return;
+        if (!canMove(checkPos)) {
+            return;
+        }
         if (!isOpponentPiece(checkPos)) {
             if (addMove(possibleMoves, checkPos) && inStartingPosition() && i < 2 && i > -2) {
                 forward(possibleMoves, i*2);
@@ -67,14 +69,16 @@ public class PawnMoveCalculator extends MoveCalculator {
 
 
     private boolean willPromote(){
-        if (position.getRow() == 2 && piece.getTeamColor() == ChessGame.TeamColor.BLACK)
+        if (position.getRow() == 2 && piece.getTeamColor() == ChessGame.TeamColor.BLACK) {
             return true;
+        }
         return (position.getRow() == 7 && piece.getTeamColor() == ChessGame.TeamColor.WHITE);
     }
 
     private boolean inStartingPosition() {
-        if (position.getRow() == 2 && piece.getTeamColor() == ChessGame.TeamColor.WHITE)
+        if (position.getRow() == 2 && piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
             return true;
+        }
         return (position.getRow() == 7 && piece.getTeamColor() == ChessGame.TeamColor.BLACK);
     }
 }
