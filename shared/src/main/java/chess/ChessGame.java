@@ -92,7 +92,6 @@ public class ChessGame {
         if (piece == null) return null;
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
-        if (piece.getTeamColor() != playingTeam) return new ArrayList<>();
 
         moves.removeIf(this::cantMove);
 
@@ -108,10 +107,12 @@ public class ChessGame {
 
     public void makeMove(ChessMove move) throws InvalidMoveException {
         Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        ChessPiece piece = board.getPiece(move.getStartPosition());
+
+        if (piece == null) throw new InvalidMoveException("Invalid Move");
+        if (piece.getTeamColor() != playingTeam) throw new InvalidMoveException("Invalid Move");
 
         if (validMoves.contains(move)) {
-            ChessPiece piece = board.getPiece(move.getStartPosition());
-
             if (move.getPromotionPiece() != null) {
                 piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
             }
