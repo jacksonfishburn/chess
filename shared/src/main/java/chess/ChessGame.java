@@ -14,6 +14,8 @@ public class ChessGame {
 
     private ChessBoard board;
     private TeamColor playingTeam;
+    private boolean whiteCastle;
+    private boolean blackCastle;
 
 
     public ChessGame() {
@@ -70,7 +72,46 @@ public class ChessGame {
 
         moves.removeIf(move -> cantMove(move, piece));
 
+
+
         return moves;
+    }
+
+    private boolean castleOpen(TeamColor team) {
+        int i = (team == TeamColor.WHITE) ? 8 : 1;
+        ChessPiece spot1 = board.getPiece(new ChessPosition(i, 6));
+        ChessPiece spot2 = board.getPiece(new ChessPosition(i, 7));
+
+        return canCastle(team) && spot1 == null && spot2 == null;
+    }
+
+    private boolean canCastle(TeamColor team) {
+        if (team == TeamColor.WHITE){
+            return whiteCastle;
+        } else {
+            return blackCastle;
+        }
+    }
+
+    private void cantCastle(TeamColor team) {
+        if (team == TeamColor.WHITE){
+            whiteCastle = false;
+        } else {
+            blackCastle = false;
+        }
+    }
+
+    private void checkCastling(TeamColor team) {
+        int i = (team == TeamColor.WHITE) ? 8 : 1;
+        ChessPosition king = new ChessPosition(i, 5);
+        ChessPosition rook = new ChessPosition(i, 8);
+
+        if (!Objects.equals(board.getPiece(king), new ChessPiece(team, ChessPiece.PieceType.KING)) ||
+                !Objects.equals(board.getPiece(rook), new ChessPiece(team, ChessPiece.PieceType.ROOK)) ||
+                isInCheck(team)) {
+
+            cantCastle(team);
+        }
     }
 
 
@@ -88,6 +129,8 @@ public class ChessGame {
 
         board.addPiece(move.startPosition(), null);
         board.addPiece(move.endPosition(), piece);
+
+        checkCastling(piece.getTeamColor());
 
         if (playingTeam == TeamColor.WHITE) {
             playingTeam = TeamColor.BLACK;
