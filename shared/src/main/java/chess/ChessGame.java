@@ -11,7 +11,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-
+    private CastleLogic castleLogic;
     private ChessBoard board;
     private TeamColor playingTeam;
 
@@ -19,27 +19,17 @@ public class ChessGame {
         board = new ChessBoard();
         board.resetBoard();
         setTeamTurn(TeamColor.WHITE);
+        castleLogic = new CastleLogic(board);
     }
 
-    /**
-     * @return Which team's turn it is
-     */
     public TeamColor getTeamTurn() {
         return playingTeam;
     }
 
-    /**
-     * Set's which teams turn it is
-     *
-     * @param team the team whose turn it is
-     */
     public void setTeamTurn(TeamColor team) {
         playingTeam = team;
     }
 
-    /**
-     * Enum identifying the 2 possible teams in a chess game
-     */
     public enum TeamColor {
         WHITE,
         BLACK
@@ -85,8 +75,14 @@ public class ChessGame {
             piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
         }
 
+        if (castleLogic.kingSideOpen(piece.getTeamColor())) {
+
+        }
+
         board.addPiece(move.startPosition(), null);
         board.addPiece(move.endPosition(), piece);
+
+        castleLogic.checkCastling(piece.getTeamColor());
 
         if (playingTeam == TeamColor.WHITE) {
             playingTeam = TeamColor.BLACK;
