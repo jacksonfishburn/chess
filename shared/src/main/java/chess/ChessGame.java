@@ -39,8 +39,8 @@ public class ChessGame {
     private boolean cantMove(ChessMove move, ChessPiece piece) {
         ChessBoard boardBackup = board.clone();
 
-        board.addPiece(move.startPosition(), null);
-        board.addPiece(move.endPosition(), piece);
+        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(move.getEndPosition(), piece);
 
         if (isInCheck(piece.getTeamColor())){
             board = boardBackup;
@@ -74,23 +74,23 @@ public class ChessGame {
 
 
     public void makeMove(ChessMove move) throws InvalidMoveException {
-        Collection<ChessMove> validMoves = validMoves(move.startPosition());
-        ChessPiece piece = board.getPiece(move.startPosition());
+        Collection<ChessMove> validMoves = validMoves(move.getStartPosition());
+        ChessPiece piece = board.getPiece(move.getStartPosition());
 
         if (piece == null || !validMoves.contains(move) || piece.getTeamColor() != playingTeam){
             throw new InvalidMoveException("Invalid Move");
         }
 
-        if (move.promotionPiece() != null) {
-            piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
+        if (move.getPromotionPiece() != null) {
+            piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
         }
 
         if (castleLogic.isCastleMove(move)) {
             castleLogic.moveRook(move, playingTeam);
         }
 
-        board.addPiece(move.startPosition(), null);
-        board.addPiece(move.endPosition(), piece);
+        board.addPiece(move.getStartPosition(), null);
+        board.addPiece(move.getEndPosition(), piece);
 
         castleLogic.checkCastling(playingTeam);
 
@@ -122,7 +122,7 @@ public class ChessGame {
         Collection<ChessMove> oppMoves = allTeamMoves(oppColor);
 
         for (ChessMove move : oppMoves) {
-            ChessPosition pos = move.endPosition();
+            ChessPosition pos = move.getEndPosition();
             if (Objects.equals(board.getPiece(pos), new ChessPiece(teamColor, ChessPiece.PieceType.KING))) {
                 return true;
             }

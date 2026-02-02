@@ -80,18 +80,18 @@ public class CastleLogic {
     }
 
     public boolean isCastleMove(ChessMove move) {
-        ChessPiece piece = game.getBoard().getPiece(move.startPosition());
+        ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
         if (piece == null || !(piece.getPieceType() == ChessPiece.PieceType.KING)){
             return false;
         }
-        int spacesMoved = Math.abs(move.startPosition().getColumn() - move.endPosition().getColumn());
+        int spacesMoved = Math.abs(move.getStartPosition().getColumn() - move.getEndPosition().getColumn());
         System.out.printf("returning is castle move: %b", spacesMoved == 2);
         return spacesMoved == 2;
     }
 
     public void moveRook(ChessMove kingMove, ChessGame.TeamColor team) {
         int i = (team == ChessGame.TeamColor.WHITE) ? 1 : 8;
-        int moveDir = kingMove.startPosition().getColumn() - kingMove.endPosition().getColumn();
+        int moveDir = kingMove.getStartPosition().getColumn() - kingMove.getEndPosition().getColumn();
         ChessPosition startPos;
         ChessPosition endPos;
         if (moveDir < 0) {
