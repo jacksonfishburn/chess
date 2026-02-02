@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
+
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -11,7 +12,7 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private CastleLogic castleLogic;
+    private final CastleLogic castleLogic;
     private ChessBoard board;
     private TeamColor playingTeam;
 
@@ -19,7 +20,7 @@ public class ChessGame {
         board = new ChessBoard();
         board.resetBoard();
         setTeamTurn(TeamColor.WHITE);
-        castleLogic = new CastleLogic(board);
+        castleLogic = new CastleLogic(this);
     }
 
     public TeamColor getTeamTurn() {
@@ -46,7 +47,7 @@ public class ChessGame {
             return true;
         }
 
-        board = boardBackup;
+        setBoard(boardBackup);
         return false;
     }
 
@@ -58,6 +59,15 @@ public class ChessGame {
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
         moves.removeIf(move -> cantMove(move, piece));
+
+        if (piece.getPieceType() == ChessPiece.PieceType.KING) {
+            if (castleLogic.kingSideOpen(piece.getTeamColor())) {
+                castleLogic.addKingSideMove(moves, piece.getTeamColor());
+            }
+            if (castleLogic.queenSideOpen(piece.getTeamColor())) {
+                castleLogic.addQueenSideMove(moves, piece.getTeamColor());
+            }
+        }
 
         return moves;
     }
@@ -75,14 +85,14 @@ public class ChessGame {
             piece = new ChessPiece(piece.getTeamColor(), move.promotionPiece());
         }
 
-        if (castleLogic.kingSideOpen(piece.getTeamColor())) {
-
+        if (castleLogic.isCastleMove(move)) {
+            castleLogic.moveRook(move, playingTeam);
         }
 
         board.addPiece(move.startPosition(), null);
         board.addPiece(move.endPosition(), piece);
 
-        castleLogic.checkCastling(piece.getTeamColor());
+        castleLogic.checkCastling(playingTeam);
 
         if (playingTeam == TeamColor.WHITE) {
             playingTeam = TeamColor.BLACK;
