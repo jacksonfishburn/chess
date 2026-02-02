@@ -14,19 +14,43 @@ public class CastleLogic {
 
     public boolean kingSideOpen(ChessGame.TeamColor team) {
         int i = (team == ChessGame.TeamColor.WHITE) ? 1 : 8;
-        ChessPiece spot1  = game.getBoard().getPiece(new ChessPosition(i, 6));
+        ChessPosition startPos = new ChessPosition(i, 6);
+        ChessPiece spot1  = game.getBoard().getPiece(startPos);
         ChessPiece spot2 = game.getBoard().getPiece(new ChessPosition(i, 7));
 
-        return spot1 == null && spot2 == null && castleRights.hasKingSideRight(team);
+        if (spot1 == null && spot2 == null
+                && castleRights.hasKingSideRight(team)) {
+                return wontSeeCheck(i, 1, team);
+        } return false;
     }
 
     public boolean queenSideOpen(ChessGame.TeamColor team) {
         int i = (team == ChessGame.TeamColor.WHITE) ? 1 : 8;
-        ChessPiece spot1 = game.getBoard().getPiece(new ChessPosition(i, 2));
+        ChessPosition startPos = new ChessPosition(i, 4);
+        ChessPiece spot1 = game.getBoard().getPiece(startPos);
         ChessPiece spot2 = game.getBoard().getPiece(new ChessPosition(i, 3));
-        ChessPiece spot3 = game.getBoard().getPiece(new ChessPosition(i, 4));
+        ChessPiece spot3 = game.getBoard().getPiece(new ChessPosition(i, 2));
 
-        return spot1 == null && spot2 == null && spot3 == null && castleRights.hasQueenSideRight(team);
+        if (spot1 == null && spot2 == null && spot3 == null
+                && castleRights.hasQueenSideRight(team)) {
+            return wontSeeCheck(i, -1, team);
+        } return false;
+    }
+
+    private boolean wontSeeCheck(int row, int dir, ChessGame.TeamColor team) {
+        ChessBoard boardBackup = game.getBoard().clone();
+        ChessPiece king = game.getBoard().getPiece(new ChessPosition(row, 5));
+        boolean wontSeeCheck = true;
+
+        game.getBoard().addPiece(new ChessPosition(row, 5 + dir), king);
+        game.getBoard().addPiece(new ChessPosition(row, 5 + dir*2), king);
+
+        if (game.isInCheck(team)) {
+            wontSeeCheck = false;
+        }
+
+        game.setBoard(boardBackup);
+        return wontSeeCheck;
     }
 
     public void addKingSideMove(Collection<ChessMove> moves, ChessGame.TeamColor team) {
