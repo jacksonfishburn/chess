@@ -13,26 +13,32 @@ public class CastleLogic {
     }
 
     public boolean kingSideOpen(ChessGame.TeamColor team) {
+        checkCastling(team);
+        if (!castleRights.hasKingSideRight(team)){
+            return false;
+        }
         int i = (team == ChessGame.TeamColor.WHITE) ? 1 : 8;
         ChessPosition startPos = new ChessPosition(i, 6);
         ChessPiece spot1  = game.getBoard().getPiece(startPos);
         ChessPiece spot2 = game.getBoard().getPiece(new ChessPosition(i, 7));
 
-        if (spot1 == null && spot2 == null
-                && castleRights.hasKingSideRight(team)) {
+        if (spot1 == null && spot2 == null) {
                 return wontSeeCheck(i, 1, team);
         } return false;
     }
 
     public boolean queenSideOpen(ChessGame.TeamColor team) {
+        checkCastling(team);
+        if (!castleRights.hasQueenSideRight(team)) {
+            return false;
+        }
         int i = (team == ChessGame.TeamColor.WHITE) ? 1 : 8;
         ChessPosition startPos = new ChessPosition(i, 4);
         ChessPiece spot1 = game.getBoard().getPiece(startPos);
         ChessPiece spot2 = game.getBoard().getPiece(new ChessPosition(i, 3));
         ChessPiece spot3 = game.getBoard().getPiece(new ChessPosition(i, 2));
 
-        if (spot1 == null && spot2 == null && spot3 == null
-                && castleRights.hasQueenSideRight(team)) {
+        if (spot1 == null && spot2 == null && spot3 == null) {
             return wontSeeCheck(i, -1, team);
         } return false;
     }
