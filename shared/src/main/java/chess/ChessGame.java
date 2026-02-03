@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-
 /**
  * For a class that can manage a chess game, making moves on a board
  * <p>
@@ -12,15 +11,17 @@ import java.util.Objects;
  * signature of the existing methods.
  */
 public class ChessGame {
-    private final CastleLogic castleLogic;
     private ChessBoard board;
     private TeamColor playingTeam;
+    private final CastleLogic castleLogic;
+    private final EnPassant enPassant;
 
     public ChessGame() {
         board = new ChessBoard();
         board.resetBoard();
         setTeamTurn(TeamColor.WHITE);
         castleLogic = new CastleLogic(this);
+        enPassant = new EnPassant(this);
     }
 
     public TeamColor getTeamTurn() {
@@ -58,6 +59,10 @@ public class ChessGame {
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
+        if (enPassant.getMove() != null && startPosition == enPassant.getMove().getStartPosition()) {
+            moves.add(enPassant.getMove());
+        }
+
         moves.removeIf(move -> cantMove(move, piece));
 
         if (piece.getPieceType() == ChessPiece.PieceType.KING) {
@@ -83,6 +88,13 @@ public class ChessGame {
 
         if (move.getPromotionPiece() != null) {
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
+        }
+
+        enPassant.lostChance();
+        enPassant.check(move);
+
+        if (enPassant.isPassant(move)) {
+            enPassant.makePassantMove(playingTeam);
         }
 
         if (castleLogic.isCastleMove(move)) {
