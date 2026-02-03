@@ -1,9 +1,12 @@
-package chess;
+package chess.move;
 
-import javax.swing.*;
+import chess.ChessBoard;
+import chess.ChessMove;
+import chess.ChessPosition;
+
 import java.util.Collection;
 
-public class QueenMoveCalculator extends MoveCalculator{
+public class QueenMoveCalculator extends MoveCalculator {
 
     public QueenMoveCalculator(ChessBoard board, ChessPosition position) {
         super(board, position);
