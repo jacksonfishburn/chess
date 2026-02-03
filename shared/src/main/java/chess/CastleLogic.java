@@ -85,7 +85,6 @@ public class CastleLogic {
             return false;
         }
         int spacesMoved = Math.abs(move.getStartPosition().getColumn() - move.getEndPosition().getColumn());
-        System.out.printf("returning is castle move: %b", spacesMoved == 2);
         return spacesMoved == 2;
     }
 
