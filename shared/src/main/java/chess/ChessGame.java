@@ -59,8 +59,9 @@ public class ChessGame {
         }
         Collection<ChessMove> moves = piece.pieceMoves(board, startPosition);
 
-        if (enPassant.getMove() != null && startPosition == enPassant.getMove().getStartPosition()) {
-            moves.add(enPassant.getMove());
+        ChessMove passantMove = enPassant.getMove();
+        if (passantMove != null && startPosition.equals(passantMove.getStartPosition())) {
+            moves.add(passantMove);
         }
 
         moves.removeIf(move -> cantMove(move, piece));
@@ -90,12 +91,12 @@ public class ChessGame {
             piece = new ChessPiece(piece.getTeamColor(), move.getPromotionPiece());
         }
 
-        enPassant.lostChance();
-        enPassant.check(move);
-
         if (enPassant.isPassant(move)) {
             enPassant.makePassantMove(playingTeam);
         }
+        enPassant.lostChance();
+        enPassant.check(move);
+
 
         if (castleLogic.isCastleMove(move)) {
             castleLogic.moveRook(move, playingTeam);
