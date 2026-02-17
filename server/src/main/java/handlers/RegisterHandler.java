@@ -3,6 +3,7 @@ package handlers;
 import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
+import models.ErrorResponse;
 import models.RegisterResult;
 import service.RegisterService;
 import models.UserData;
@@ -29,10 +30,13 @@ public class RegisterHandler implements Handler {
 
         RegisterService service = new RegisterService(userDAO, authDAO);
 
-        RegisterResult result = service.register(data);
-        String jsonResult = gson.toJson(result);
-        context.status(200);
-        context.result(jsonResult);
-
+        try {
+            RegisterResult result = service.register(data);
+            String jsonResult = gson.toJson(result);
+            context.status(200);
+            context.result(jsonResult);
+        } catch (AlreadyTakenException e){
+            context.status(403);
+        }
     }
 }
