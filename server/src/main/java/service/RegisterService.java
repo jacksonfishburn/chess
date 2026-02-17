@@ -1,7 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
-import dataaccess.BadRequestException;
+import exceptions.BadRequestException;
 import dataaccess.UserDAO;
 import models.*;
 
@@ -14,7 +14,7 @@ public class RegisterService {
         this.authDAO = authDAO;
     }
 
-    public RegisterResult register(UserData data) throws Exception {
+    public SessionStartResult register(UserData data) throws Exception {
         if (data.username() == null ||
             data.password() == null ||
             data.email() == null)
@@ -23,6 +23,6 @@ public class RegisterService {
         userDAO.createUser(data);
         String authToken = authDAO.createAuth(data.username());
 
-        return new RegisterResult(data.username(), authToken);
+        return new SessionStartResult(data.username(), authToken);
     }
 }

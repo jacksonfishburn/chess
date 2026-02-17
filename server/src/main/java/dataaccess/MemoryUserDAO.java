@@ -1,5 +1,6 @@
 package dataaccess;
 
+import exceptions.AlreadyTakenException;
 import models.UserData;
 
 import java.util.*;
