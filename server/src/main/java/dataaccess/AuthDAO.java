@@ -1,5 +1,5 @@
 package dataaccess;
 
 public interface AuthDAO {
-    void createAuth(String username);
+    String createAuth(String username);
 }
