@@ -1,11 +1,11 @@
 package handlers;
 
-import dataaccess.AlreadyTakenException;
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
-import models.ErrorResponse;
-import models.RegisterResult;
 import service.RegisterService;
+import dataaccess.AlreadyTakenException;
+import dataaccess.BadRequestException;
+import models.ErrorResponse;
 import models.UserData;
 
 import com.google.gson.*;
@@ -22,21 +22,30 @@ public class RegisterHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context context) {
         GsonBuilder builder = new GsonBuilder();
         Gson gson = builder.create();
-
-        UserData data = gson.fromJson(context.body(), UserData.class);
-
         RegisterService service = new RegisterService(userDAO, authDAO);
 
+        String result;
+        int status;
+
         try {
-            RegisterResult result = service.register(data);
-            String jsonResult = gson.toJson(result);
-            context.status(200);
-            context.result(jsonResult);
+            UserData data = gson.fromJson(context.body(), UserData.class);
+            result = gson.toJson(service.register(data));
+            status = 200;
         } catch (AlreadyTakenException e){
-            context.status(403);
+            result = gson.toJson(new ErrorResponse(e.getMessage()));
+            status = 403;
+        } catch (JsonSyntaxException | BadRequestException e) {
+            result = gson.toJson(new ErrorResponse("bad request"));
+            status = 400;
+        } catch (Exception e) {
+            result = gson.toJson(new ErrorResponse(e.getMessage()));
+            status = 500;
         }
+        context.status(status);
+        context.result(result);
+
     }
 }
