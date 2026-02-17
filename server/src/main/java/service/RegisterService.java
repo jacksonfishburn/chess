@@ -1,9 +1,9 @@
 package service;
 
-import models.UserData;
+import models.*;
 
 public class RegisterService {
-    public void register(UserData data) {
+    public RegisterResult register(UserData data) {
 
     }
 }

@@ -16,7 +16,5 @@ public class RegisterHandler implements Handler {
         UserData data = gson.fromJson(context.body(), UserData.class);
 
         RegisterService service = new RegisterService();
-
-
     }
 }
