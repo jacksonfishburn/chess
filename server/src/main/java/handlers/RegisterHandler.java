@@ -24,7 +24,6 @@ public class RegisterHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         RegisterService service = new RegisterService(userDAO, authDAO);
-
         try {
             UserData data = context.bodyAsClass(UserData.class);
             context.json(service.register(data));

@@ -23,7 +23,6 @@ public class LoginHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         LoginService service = new LoginService(userDAO, authDAO);
-
         try {
             LoginRequest data = context.bodyAsClass(LoginRequest.class);
             context.json(service.login(data));
