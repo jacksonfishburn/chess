@@ -6,12 +6,9 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import models.AuthRequest;
 import org.jetbrains.annotations.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import service.LogoutService;
 
 public class LogoutHandler implements Handler {
-    private static final Logger log = LoggerFactory.getLogger(LogoutHandler.class);
     private final AuthDAO authDAO;
 
     public LogoutHandler(AuthDAO authDAO) {
