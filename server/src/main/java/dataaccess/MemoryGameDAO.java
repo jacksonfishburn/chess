@@ -15,10 +15,10 @@ public class MemoryGameDAO implements GameDAO {
     int currentID = 0;
 
     @Override
-    public void createGame(String username, String gameName) {
+    public int createGame(String username, String gameName) {
         GameData game =  new GameData(currentID, username, null, gameName, new ChessGame());
         data.put(currentID, game);
-        currentID++;
+        return currentID++;
     }
 
     @Override

@@ -4,7 +4,6 @@ import dataaccess.AuthDAO;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.AuthRequest;
 import org.jetbrains.annotations.NotNull;
 import service.LogoutService;
 
@@ -18,9 +17,10 @@ public class LogoutHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) throws Exception {
         LogoutService logoutService = new LogoutService(authDAO);
+        String authToken = context.header("Authorization");
         try {
-            AuthRequest authRequest = new AuthRequest(context.header("Authorization"));
-            logoutService.logout(authRequest);
+            authDAO.authorize(authToken);
+            logoutService.logout(authToken);
             context.status(200);
         } catch (UnauthorizedException e) {
             context.status(401);
