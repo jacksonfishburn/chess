@@ -30,12 +30,4 @@ public class MemoryAuthDAO implements AuthDAO {
     public AuthData getAuth(String auth) {
         return data.get(auth);
     }
-
-    public String authorize(String auth) throws Exception{
-        AuthData authData = getAuth(auth);
-        if (authData == null) {
-            throw new UnauthorizedException("unauthorized");
-        }
-        return authData.username();
-    }
 }

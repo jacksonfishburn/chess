@@ -1,6 +1,7 @@
 package service;
 
 import dataaccess.AuthDAO;
+import models.AuthData;
 
 public class LogoutService {
     private final AuthDAO authDAO;
@@ -9,7 +10,10 @@ public class LogoutService {
         this.authDAO = authDAO;
     }
 
-    public void logout(String auth) {
-        authDAO.deleteAuth(auth);
+    public void logout(AuthData authData) throws Exception {
+        AuthService authService = new AuthService(authDAO);
+        authService.authenticate(authData);
+
+        authDAO.deleteAuth(authData.authToken());
     }
 }

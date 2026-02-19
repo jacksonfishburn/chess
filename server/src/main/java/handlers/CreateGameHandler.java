@@ -5,6 +5,7 @@ import dataaccess.GameDAO;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
+import models.AuthData;
 import models.CreateGameRequest;
 import models.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
@@ -21,13 +22,14 @@ public class CreateGameHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context context) throws Exception {
-        GameService service = new GameService(gameDAO);
         String authToken = context.header("Authorization");
+        AuthData authData = authDAO.getAuth(authToken);
+
+        GameService service = new GameService(authDAO, gameDAO);
 
         try {
-            String userName = authDAO.authorize(authToken);
-            CreateGameRequest createRequest = new CreateGameRequest(userName, authToken);
-            context.json(service.createGame(createRequest));
+            CreateGameRequest createGameRequest = context.bodyAsClass(CreateGameRequest.class);
+            context.json(service.createGame(authData, createGameRequest));
             context.status(200);
         } catch (UnauthorizedException e) {
             context.json(new ErrorResponse(e.getMessage()));

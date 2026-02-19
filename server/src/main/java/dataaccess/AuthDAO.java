@@ -6,5 +6,4 @@ public interface AuthDAO {
     String createAuth(String username);
     void deleteAuth(String auth);
     AuthData getAuth(String auth);
-    String authorize(String auth) throws Exception;
 }

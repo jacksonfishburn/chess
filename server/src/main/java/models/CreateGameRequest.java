@@ -1,4 +1,3 @@
 package models;
 
-public record CreateGameRequest( String userName,
-                                 String gameName ) {}
+public record CreateGameRequest( String gameName ) {}
