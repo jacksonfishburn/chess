@@ -12,7 +12,7 @@ import java.util.Objects;
 public class MemoryGameDAO implements GameDAO {
     Map<Integer, GameData> data = new HashMap<>();
 
-    int currentID = 0;
+    int currentID = 1000;
 
     @Override
     public int createGame(String username, String gameName) {
@@ -36,7 +36,7 @@ public class MemoryGameDAO implements GameDAO {
         GameData game = data.get(gameID);
         GameData newGame;
 
-        if (Objects.equals(playerColor, "white")) {
+        if (Objects.equals(playerColor, "WHITE")) {
             newGame = new GameData(gameID, userName, game.blackUserName(), game.gameName(), game.game());
         } else {
             newGame = new GameData(gameID, game.whiteUserName(), userName, game.gameName(), game.game());

@@ -5,6 +5,7 @@ import dataaccess.GameDAO;
 import models.AuthData;
 import models.CreateGameRequest;
 import models.CreateGameResult;
+import models.JoinGameRequest;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -15,11 +16,21 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    public CreateGameResult createGame(AuthData authData, CreateGameRequest request) throws Exception {
+    private String authenticate(AuthData authData) throws Exception {
         AuthService authService = new AuthService(authDAO);
-        String userName = authService.authenticate(authData);
+        return authService.authenticate(authData);
+    }
 
-        int gameID = gameDAO.createGame(userName, request.gameName());
+    public CreateGameResult createGame(AuthData authData, CreateGameRequest request) throws Exception {
+        String username = authenticate(authData);
+
+        int gameID = gameDAO.createGame(username, request.gameName());
         return new CreateGameResult(gameID);
+    }
+
+    public void joinGame(AuthData authData, JoinGameRequest request) throws Exception {
+        String username = authenticate(authData);
+
+        gameDAO.updateGame(request.gameID(), request.playerColor(), username);
     }
 }
