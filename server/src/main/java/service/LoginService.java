@@ -20,15 +20,15 @@ public class LoginService {
     public SessionStartResult login(LoginRequest data) throws Exception {
         if (data.username() == null ||
                 data.password() == null)
-        { throw new BadRequestException("bad request"); }
+        { throw new BadRequestException(""); }
 
         UserData user = userDAO.getUser(data.username());
 
         if (user == null){
-            throw new BadRequestException("bad request");
+            throw new UnauthorizedException("");
         }
         if (!Objects.equals(user.password(), data.password())) {
-            throw new UnauthorizedException("unauthorized");
+            throw new UnauthorizedException("");
         }
 
         String authToken = authDAO.createAuth(data.username());

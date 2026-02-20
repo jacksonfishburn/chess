@@ -33,10 +33,10 @@ public class CreateGameHandler implements Handler {
             context.json(service.createGame(authData, createGameRequest));
             context.status(200);
         } catch (UnauthorizedException e) {
-            context.json(new ErrorResponse(e.getMessage()));
+            context.json(new ErrorResponse("Error: Not Authorized"));
             context.status(401);
         } catch (BadRequestException e) {
-            context.json(new ErrorResponse(e.getMessage()));
+            context.json(new ErrorResponse("Error: Bad Request"));
             context.status(400);
         } catch (Exception e) {
             context.json(new ErrorResponse(e.getMessage()));

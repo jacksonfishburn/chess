@@ -1,5 +1,5 @@
 package models;
 
-public record SessionStartResult(String userName,
+public record SessionStartResult(String username,
                                  String authToken )
 {}
