@@ -2,6 +2,7 @@ package handlers;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exceptions.BadRequestException;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
@@ -34,6 +35,12 @@ public class CreateGameHandler implements Handler {
         } catch (UnauthorizedException e) {
             context.json(new ErrorResponse(e.getMessage()));
             context.status(401);
+        } catch (BadRequestException e) {
+            context.json(new ErrorResponse(e.getMessage()));
+            context.status(400);
+        } catch (Exception e) {
+            context.json(new ErrorResponse(e.getMessage()));
+            context.status(500);
         }
     }
 }

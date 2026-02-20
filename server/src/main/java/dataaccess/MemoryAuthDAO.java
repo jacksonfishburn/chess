@@ -30,4 +30,9 @@ public class MemoryAuthDAO implements AuthDAO {
     public AuthData getAuth(String auth) {
         return data.get(auth);
     }
+
+    @Override
+    public void clear() {
+        data = new HashMap<>();
+    }
 }
