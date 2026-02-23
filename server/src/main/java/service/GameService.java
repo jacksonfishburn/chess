@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exceptions.BadRequestException;
 import models.AuthData;
 import models.CreateGameRequest;
 import models.CreateGameResult;
@@ -23,6 +24,10 @@ public class GameService {
 
     public CreateGameResult createGame(AuthData authData, CreateGameRequest request) throws Exception {
         String username = authenticate(authData);
+
+        if (gameDAO.isNameTaken(request.gameName()) || request.gameName() == null) {
+            throw new BadRequestException("");
+        }
 
         int gameID = gameDAO.createGame(username, request.gameName());
         return new CreateGameResult(gameID);

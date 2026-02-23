@@ -44,6 +44,14 @@ public class MemoryGameDAO implements GameDAO {
         data.put(gameID, newGame);
     }
 
+    public boolean isNameTaken(String name) {
+        for (GameData game : data.values()) {
+            if (Objects.equals(game.gameName(), name)) {
+                return true;
+            }
+        } return false;
+    }
+
     @Override
     public void clear() {
         data = new HashMap<>();
