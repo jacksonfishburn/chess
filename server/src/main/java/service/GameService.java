@@ -3,10 +3,10 @@ package service;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import exceptions.BadRequestException;
-import models.AuthData;
-import models.CreateGameRequest;
-import models.CreateGameResult;
-import models.JoinGameRequest;
+import models.*;
+
+import java.util.List;
+import java.util.Objects;
 
 public class GameService {
     private final GameDAO gameDAO;
@@ -36,6 +36,19 @@ public class GameService {
     public void joinGame(AuthData authData, JoinGameRequest request) throws Exception {
         String username = authenticate(authData);
 
+        if (gameDAO.getGame(request.gameID()) == null) {
+            throw new BadRequestException("");
+        }
+
+
         gameDAO.updateGame(request.gameID(), request.playerColor(), username);
     }
+
+    public ListGameResult listGames(AuthData authData) throws Exception {
+        authenticate(authData);
+
+        return new ListGameResult(gameDAO.listGames());
+    }
+
+
 }
