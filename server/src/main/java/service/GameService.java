@@ -2,10 +2,10 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import models.*;
 
-import java.util.List;
 import java.util.Objects;
 
 public class GameService {
@@ -35,11 +35,25 @@ public class GameService {
 
     public void joinGame(AuthData authData, JoinGameRequest request) throws Exception {
         String username = authenticate(authData);
+        GameData game = gameDAO.getGame(request.gameID());
 
-        if (gameDAO.getGame(request.gameID()) == null) {
+        if (game == null) {
             throw new BadRequestException("");
         }
 
+        if (!Objects.equals(request.playerColor(), "BLACK") &&
+                !Objects.equals(request.playerColor(), "WHITE")
+        ) {
+            throw new BadRequestException("");
+        }
+
+        if (Objects.equals(request.playerColor(), "BLACK") &&
+                game.blackUserName() != null ||
+                Objects.equals(request.playerColor(), "WHITE") &&
+                        game.whiteUserName() != null
+        ) {
+            throw new AlreadyTakenException("");
+        }
 
         gameDAO.updateGame(request.gameID(), request.playerColor(), username);
     }
@@ -49,6 +63,4 @@ public class GameService {
 
         return new ListGameResult(gameDAO.listGames());
     }
-
-
 }

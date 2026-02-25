@@ -14,7 +14,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public int createGame(String username, String gameName) {
-        GameData game =  new GameData(currentID, username, null, gameName, new ChessGame());
+        GameData game =  new GameData(currentID, null, null, gameName, new ChessGame());
         data.put(currentID, game);
         return currentID++;
     }
@@ -34,7 +34,6 @@ public class MemoryGameDAO implements GameDAO {
                 game.blackUserName(),
                 game.gameName()
             );
-
                 gameList.add(info);
         }
         return gameList;
