@@ -22,15 +22,15 @@ public class CreateGameHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context context) {
         String authToken = context.header("Authorization");
         AuthData authData = authDAO.getAuth(authToken);
 
         GameService service = new GameService(authDAO, gameDAO);
 
         try {
-            CreateGameRequest createGameRequest = context.bodyAsClass(CreateGameRequest.class);
-            context.json(service.createGame(authData, createGameRequest));
+            CreateGameRequest request = context.bodyAsClass(CreateGameRequest.class);
+            context.json(service.createGame(authData, request));
             context.status(200);
         } catch (UnauthorizedException e) {
             context.json(new ErrorResponse("Error: Not Authorized"));

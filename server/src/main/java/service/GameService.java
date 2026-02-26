@@ -6,6 +6,8 @@ import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import models.*;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Objects;
 
 public class GameService {
@@ -17,16 +19,16 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    private String authenticate(AuthData authData) throws Exception {
+    private String authorize(AuthData authData) throws Exception {
         AuthService authService = new AuthService(authDAO);
-        return authService.authenticate(authData);
+        return authService.authorize(authData);
     }
 
     public CreateGameResult createGame(AuthData authData, CreateGameRequest request) throws Exception {
-        String username = authenticate(authData);
+        String username = authorize(authData);
 
         if (gameDAO.isNameTaken(request.gameName()) || request.gameName() == null) {
-            throw new BadRequestException("");
+            throw new BadRequestException("Game Name Invalid");
         }
 
         int gameID = gameDAO.createGame(username, request.gameName());
@@ -34,17 +36,17 @@ public class GameService {
     }
 
     public void joinGame(AuthData authData, JoinGameRequest request) throws Exception {
-        String username = authenticate(authData);
+        String username = authorize(authData);
         GameData game = gameDAO.getGame(request.gameID());
 
         if (game == null) {
-            throw new BadRequestException("");
+            throw new BadRequestException("Game Not Found");
         }
 
         if (!Objects.equals(request.playerColor(), "BLACK") &&
                 !Objects.equals(request.playerColor(), "WHITE")
         ) {
-            throw new BadRequestException("");
+            throw new BadRequestException("Invalid Color");
         }
 
         if (Objects.equals(request.playerColor(), "BLACK") &&
@@ -52,15 +54,27 @@ public class GameService {
                 Objects.equals(request.playerColor(), "WHITE") &&
                         game.whiteUserName() != null
         ) {
-            throw new AlreadyTakenException("");
+            throw new AlreadyTakenException("Player Color Already Taken");
         }
 
         gameDAO.updateGame(request.gameID(), request.playerColor(), username);
     }
 
     public ListGameResult listGames(AuthData authData) throws Exception {
-        authenticate(authData);
+        authorize(authData);
 
-        return new ListGameResult(gameDAO.listGames());
+        Collection<GameData> data = gameDAO.listGames();
+        Collection<GameInfo> gameList = new ArrayList<>();
+
+        for (GameData game : data) {
+            GameInfo info = new GameInfo(
+                    game.gameID(),
+                    game.whiteUserName(),
+                    game.blackUserName(),
+                    game.gameName()
+            );
+            gameList.add(info);
+        }
+        return new ListGameResult(gameList);
     }
 }

@@ -20,7 +20,6 @@ public class ListGamesHandler implements Handler {
         this.authDAO = authDAO;
     }
 
-
     @Override
     public void handle(@NotNull Context context) {
         String authToken = context.header("Authorization");
@@ -39,6 +38,5 @@ public class ListGamesHandler implements Handler {
             context.json(new ErrorResponse(e.getMessage()));
             context.status(500);
         }
-
     }
 }

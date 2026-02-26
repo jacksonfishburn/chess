@@ -5,6 +5,7 @@ import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import models.AuthData;
+import models.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 
@@ -20,17 +21,17 @@ public class LogoutHandler implements Handler {
         String authToken = context.header("Authorization");
         AuthData authData = authDAO.getAuth(authToken);
 
-        AuthService logoutService = new AuthService(authDAO);
+        AuthService service = new AuthService(authDAO);
 
         try {
-            logoutService.logout(authData);
+            service.logout(authData);
             context.status(200);
         } catch (UnauthorizedException e) {
+            context.json(new ErrorResponse("Error: Unauthorized"));
             context.status(401);
-            context.result(String.format("{ \"message\": \"Error: %s\" }", e.getMessage()));
         } catch (Exception e) {
+            context.json(new ErrorResponse(e.getMessage()));
             context.status(500);
-            context.result(String.format("{ \"message\": \"Error: %s\" }", e.getMessage()));
         }
     }
 }

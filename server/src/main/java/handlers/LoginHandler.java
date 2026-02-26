@@ -24,8 +24,8 @@ public class LoginHandler implements Handler {
     public void handle(@NotNull Context context) {
         UserService service = new UserService(userDAO, authDAO);
         try {
-            LoginRequest data = context.bodyAsClass(LoginRequest.class);
-            context.json(service.login(data));
+            LoginRequest request = context.bodyAsClass(LoginRequest.class);
+            context.json(service.login(request));
             context.status(200);
         } catch (BadRequestException e) {
             context.json(new ErrorResponse("Error: Bad Request"));

@@ -21,7 +21,7 @@ public class ClearHandler implements Handler {
     }
 
     @Override
-    public void handle(@NotNull Context context) throws Exception {
+    public void handle(@NotNull Context context) {
         ClearService clearService = new ClearService(userDAO, authDAO, gameDAO);
         try {
             clearService.clear();

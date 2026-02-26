@@ -2,6 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
+import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import exceptions.UnauthorizedException;
 import models.LoginRequest;
@@ -22,8 +23,12 @@ public class UserService {
     public SessionStartResult register(UserData data) throws Exception {
         if (data.username() == null ||
                 data.password() == null ||
-                data.email() == null)
-        { throw new BadRequestException("bad request"); }
+                data.email() == null) {
+            throw new BadRequestException("Bad Request");
+        }
+        if (userDAO.getUser(data.username()) != null) {
+            throw new AlreadyTakenException("User Name Already Taken");
+        }
 
         userDAO.createUser(data);
         String authToken = authDAO.createAuth(data.username());
@@ -34,20 +39,18 @@ public class UserService {
     public SessionStartResult login(LoginRequest data) throws Exception {
         if (data.username() == null ||
                 data.password() == null)
-        { throw new BadRequestException(""); }
+        { throw new BadRequestException("Bad Request"); }
 
         UserData user = userDAO.getUser(data.username());
 
         if (user == null){
-            throw new UnauthorizedException("");
+            throw new UnauthorizedException("User Not Found");
         }
         if (!Objects.equals(user.password(), data.password())) {
-            throw new UnauthorizedException("");
+            throw new UnauthorizedException("Incorrect Password");
         }
 
         String authToken = authDAO.createAuth(data.username());
         return new SessionStartResult(data.username(), authToken);
     }
-
-
 }

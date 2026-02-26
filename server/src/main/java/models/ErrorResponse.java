@@ -1,4 +1,3 @@
 package models;
 
-public record ErrorResponse( String message )
-{}
+public record ErrorResponse( String message ) {}
