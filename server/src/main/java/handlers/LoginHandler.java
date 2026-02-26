@@ -9,7 +9,7 @@ import io.javalin.http.Handler;
 import models.ErrorResponse;
 import models.LoginRequest;
 import org.jetbrains.annotations.NotNull;
-import service.LoginService;
+import service.UserService;
 
 public class LoginHandler implements Handler {
     private final UserDAO userDAO;
@@ -22,7 +22,7 @@ public class LoginHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context context) {
-        LoginService service = new LoginService(userDAO, authDAO);
+        UserService service = new UserService(userDAO, authDAO);
         try {
             LoginRequest data = context.bodyAsClass(LoginRequest.class);
             context.json(service.login(data));

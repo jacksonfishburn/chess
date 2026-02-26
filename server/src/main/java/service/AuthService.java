@@ -17,4 +17,11 @@ public class AuthService {
         }
         return authData.username();
     }
+
+    public void logout(AuthData authData) throws Exception {
+        AuthService authService = new AuthService(authDAO);
+        authService.authenticate(authData);
+
+        authDAO.deleteAuth(authData.authToken());
+    }
 }

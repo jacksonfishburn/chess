@@ -2,7 +2,7 @@ package handlers;
 
 import dataaccess.AuthDAO;
 import dataaccess.UserDAO;
-import service.RegisterService;
+import service.UserService;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import models.ErrorResponse;
@@ -23,7 +23,7 @@ public class RegisterHandler implements Handler {
 
     @Override
     public void handle(@NotNull Context context) {
-        RegisterService service = new RegisterService(userDAO, authDAO);
+        UserService service = new UserService(userDAO, authDAO);
         try {
             UserData data = context.bodyAsClass(UserData.class);
             context.json(service.register(data));
@@ -31,7 +31,7 @@ public class RegisterHandler implements Handler {
         } catch (AlreadyTakenException e){
             context.json(new ErrorResponse("Error: Username already taken"));
             context.status(403);
-        } catch (JsonSyntaxException | BadRequestException e) {
+        } catch (BadRequestException e) {
             context.json(new ErrorResponse("Error: Bad Request"));
             context.status(400);
         } catch (Exception e) {

@@ -6,7 +6,7 @@ import io.javalin.http.Context;
 import io.javalin.http.Handler;
 import models.AuthData;
 import org.jetbrains.annotations.NotNull;
-import service.LogoutService;
+import service.AuthService;
 
 public class LogoutHandler implements Handler {
     private final AuthDAO authDAO;
@@ -20,7 +20,7 @@ public class LogoutHandler implements Handler {
         String authToken = context.header("Authorization");
         AuthData authData = authDAO.getAuth(authToken);
 
-        LogoutService logoutService = new LogoutService(authDAO);
+        AuthService logoutService = new AuthService(authDAO);
 
         try {
             logoutService.logout(authData);
