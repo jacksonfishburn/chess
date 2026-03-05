@@ -46,7 +46,7 @@ public class UserService {
         if (user == null){
             throw new UnauthorizedException("User Not Found");
         }
-        if (!Objects.equals(user.password(), data.password())) {
+        if (!userDAO.verifyPassword(data.username(), data.password())) {
             throw new UnauthorizedException("Incorrect Password");
         }
 
