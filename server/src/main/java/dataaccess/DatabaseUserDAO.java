@@ -33,16 +33,30 @@ public class DatabaseUserDAO implements UserDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, email, password FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-
+                try (ResultSet rs = ps.executeQuery()) {
+                    return makeUserObj(rs);
+                }
             }
         } catch (SQLException e) {
             throw new DataAccessException("failed to get connection", e);
         }
     }
 
-    @Override
-    public boolean verifyPassword(String username, String password) {
+    private UserData makeUserObj(ResultSet rs) throws Exception {
+        if (!rs.next()) {
+            return null;
+        }
+        String username = rs.getString("username");
+        String password = rs.getString("password");
+        String email = rs.getString("email");
+        return new UserData(username, password, email);
+    }
 
+    @Override
+    public boolean verifyPassword(String username, String password) throws Exception {
+        UserData user = getUser(username);
+        String correctPassword = user.password();
+        return BCrypt.checkpw(password, correctPassword);
     }
 
     private final String[] createStatements = {
@@ -72,7 +86,14 @@ public class DatabaseUserDAO implements UserDAO{
     }
 
     @Override
-    public void clear() {
-
+    public void clear() throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "DROP TABLE IF EXISTS users";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
     }
 }
