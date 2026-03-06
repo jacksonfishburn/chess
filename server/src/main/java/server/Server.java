@@ -9,9 +9,8 @@ import io.javalin.json.JavalinGson;
 public class Server {
 
     private final Javalin javalin;
-
-    UserDAO userDAO = new MemoryUserDAO();
-    AuthDAO authDAO = new MemoryAuthDAO();
+    UserDAO userDAO;
+    AuthDAO authDAO;
     GameDAO gameDAO = new MemoryGameDAO();
 
     public Server() {
@@ -19,6 +18,14 @@ public class Server {
             config.jsonMapper(new JavalinGson());
             config.staticFiles.add("web");
         });
+
+        try {
+            userDAO = new DatabaseUserDAO();
+            authDAO = new DatabaseAuthDAO();
+        } catch (Exception e) {
+            userDAO = new MemoryUserDAO();
+            authDAO = new MemoryAuthDAO();
+        }
 
         javalin.post("/user", new RegisterHandler(userDAO, authDAO));
         javalin.post("/session", new LoginHandler(userDAO, authDAO));

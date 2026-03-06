@@ -34,6 +34,7 @@ public class DatabaseUserDAO implements UserDAO{
     public UserData getUser(String username) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, email, password FROM users WHERE username=?";
+
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {

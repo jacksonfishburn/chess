@@ -5,6 +5,7 @@ import models.AuthData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
@@ -49,7 +50,27 @@ public class DatabaseAuthDAO implements AuthDAO {
 
     @Override
     public AuthData getAuth(String auth) throws Exception {
-        return null;
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT username, authToken FROM auth WHERE authToken=?";
+
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return makeAuthObj(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
+    }
+
+    private AuthData makeAuthObj(ResultSet rs) throws Exception {
+        if (!rs.next()) {
+            return null;
+        }
+        String username = rs.getString("username");
+        String authToken = rs.getString("authToken");
+        return new AuthData(username, authToken);
     }
 
     private final String[] createStatements = {
@@ -57,7 +78,7 @@ public class DatabaseAuthDAO implements AuthDAO {
             CREATE TABLE IF NOT EXISTS auth (
               `username` varchar(256) NOT NULL,
               `authToken` varchar(256) NOT NULL,
-              PRIMARY KEY (`authToken`),
+              PRIMARY KEY (`authToken`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
