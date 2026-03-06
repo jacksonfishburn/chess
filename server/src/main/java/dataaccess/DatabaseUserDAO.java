@@ -33,6 +33,7 @@ public class DatabaseUserDAO implements UserDAO{
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "SELECT username, email, password FROM users WHERE username=?";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
                     return makeUserObj(rs);
                 }
