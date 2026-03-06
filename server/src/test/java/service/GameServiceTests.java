@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 
 public class GameServiceTests {
 
@@ -20,7 +21,7 @@ public class GameServiceTests {
 
     private CreateGameResult createGame(String name) throws Exception {
         CreateGameRequest createGameRequest = new CreateGameRequest(name);
-        return service.createGame(authData, createGameRequest);
+        return service.createGame(authData.authToken(), createGameRequest);
     }
 
     @BeforeEach
@@ -59,7 +60,7 @@ public class GameServiceTests {
         String expectedGameName = "EvysCoolGame";
 
         JoinGameRequest joinRequest = new JoinGameRequest("WHITE", gameID);
-        service.joinGame(authData, joinRequest);
+        service.joinGame(authData.authToken(), joinRequest);
 
         GameData gameData = gameDAO.getGame(gameID);
 
@@ -73,7 +74,7 @@ public class GameServiceTests {
         JoinGameRequest joinRequest = new JoinGameRequest("BLUE", gameID);
 
         Assertions.assertThrows(BadRequestException.class, () -> {
-            service.joinGame(authData, joinRequest);
+            service.joinGame(authData.authToken(), joinRequest);
         });
     }
 
@@ -84,7 +85,7 @@ public class GameServiceTests {
             createGame(gameName);
         }
 
-        Collection<GameInfo> actual = service.listGames(authData).games();
+        Collection<GameInfo> actual = service.listGames(authData.authToken()).games();
 
         for (GameInfo game : actual) {
             Assertions.assertTrue(expectedNames.contains(game.gameName()));
@@ -93,10 +94,10 @@ public class GameServiceTests {
 
     @Test
     public void negativeListGamesTest() {
-        AuthData nullAuthData = null;
+        String wrongAuth = UUID.randomUUID().toString();;
 
         Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.listGames(nullAuthData);
+            service.listGames(wrongAuth);
         });
     }
 }

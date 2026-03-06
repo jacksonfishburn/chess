@@ -1,27 +1,44 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import models.UserData;
-import org.mindrot.jbcrypt.BCrypt;
+import models.AuthData;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.util.UUID;
 
-public class DatabaseUserDAO implements UserDAO{
+public class DatabaseAuthDAO implements AuthDAO {
 
-    public DatabaseUserDAO() throws Exception {
+    public DatabaseAuthDAO() throws Exception {
         configureDatabase();
     }
 
     @Override
-    public void createUser(UserData data) throws Exception {
+    public String createAuth(String username) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO users (username, password, email) VALUES (?, ?, ?)";
-            String hashPassword = BCrypt.hashpw(data.password(), BCrypt.gensalt());
+            String token = generateToken();
+            var statement = "INSERT INTO auth (username, authToken) VALUES (?, ?)";
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, data.username());
-                ps.setString(2, hashPassword);
-                ps.setString(3, data.email());
+                ps.setString(1, username);
+                ps.setString(2, token);
+
+                ps.executeUpdate();
+                return token;
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
+    }
+
+    @Override
+    public void deleteAuth(String auth) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "DELETE FROM auth WHERE authToken=?";
+
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, auth);
 
                 ps.executeUpdate();
             }
@@ -31,44 +48,16 @@ public class DatabaseUserDAO implements UserDAO{
     }
 
     @Override
-    public UserData getUser(String username) throws Exception {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT username, email, password FROM users WHERE username=?";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.setString(1, username);
-                try (ResultSet rs = ps.executeQuery()) {
-                    return makeUserObj(rs);
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
-        }
-    }
-
-    private UserData makeUserObj(ResultSet rs) throws Exception {
-        if (!rs.next()) {
-            return null;
-        }
-        String username = rs.getString("username");
-        String password = rs.getString("password");
-        String email = rs.getString("email");
-        return new UserData(username, password, email);
-    }
-
-    @Override
-    public boolean verifyPassword(String username, String password) throws Exception {
-        UserData user = getUser(username);
-        String correctPassword = user.password();
-        return BCrypt.checkpw(password, correctPassword);
+    public AuthData getAuth(String auth) throws Exception {
+        return null;
     }
 
     private final String[] createStatements = {
             """
-            CREATE TABLE IF NOT EXISTS  users (
+            CREATE TABLE IF NOT EXISTS auth (
               `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`)
+              `authToken` varchar(256) NOT NULL,
+              PRIMARY KEY (`authToken`),
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
     };
@@ -86,10 +75,14 @@ public class DatabaseUserDAO implements UserDAO{
         }
     }
 
+    private static String generateToken() {
+        return UUID.randomUUID().toString();
+    }
+
     @Override
     public void clear() throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "DROP TABLE IF EXISTS users";
+            var statement = "DROP TABLE IF EXISTS auth";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
                 configureDatabase();

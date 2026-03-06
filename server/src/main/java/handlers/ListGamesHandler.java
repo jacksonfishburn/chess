@@ -23,12 +23,11 @@ public class ListGamesHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         String authToken = context.header("Authorization");
-        AuthData authData = authDAO.getAuth(authToken);
 
         GameService service = new GameService(authDAO, gameDAO);
 
         try {
-            ListGameResult result = service.listGames(authData);
+            ListGameResult result = service.listGames(authToken);
             context.json(result);
             context.status(200);
         } catch (UnauthorizedException e) {

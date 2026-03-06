@@ -25,13 +25,12 @@ public class JoinGameHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         String authToken = context.header("Authorization");
-        AuthData authData = authDAO.getAuth(authToken);
 
         GameService service = new GameService(authDAO, gameDAO);
 
         try {
             JoinGameRequest request = context.bodyAsClass(JoinGameRequest.class);
-            service.joinGame(authData, request);
+            service.joinGame(authToken, request);
             context.status(200);
         } catch (UnauthorizedException e) {
             context.json(new ErrorResponse("Error: Not Authorized"));

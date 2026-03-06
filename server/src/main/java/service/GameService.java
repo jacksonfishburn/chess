@@ -19,13 +19,13 @@ public class GameService {
         this.gameDAO = gameDAO;
     }
 
-    private String authorize(AuthData authData) throws Exception {
+    private String authorize(String authToken) throws Exception {
         AuthService authService = new AuthService(authDAO);
-        return authService.authorize(authData);
+        return authService.authorize(authToken);
     }
 
-    public CreateGameResult createGame(AuthData authData, CreateGameRequest request) throws Exception {
-        String username = authorize(authData);
+    public CreateGameResult createGame(String authToken, CreateGameRequest request) throws Exception {
+        String username = authorize(authToken);
 
         if (gameDAO.isNameTaken(request.gameName()) || request.gameName() == null) {
             throw new BadRequestException("Game Name Invalid");
@@ -35,8 +35,8 @@ public class GameService {
         return new CreateGameResult(gameID);
     }
 
-    public void joinGame(AuthData authData, JoinGameRequest request) throws Exception {
-        String username = authorize(authData);
+    public void joinGame(String authToken, JoinGameRequest request) throws Exception {
+        String username = authorize(authToken);
         GameData game = gameDAO.getGame(request.gameID());
 
         if (game == null) {
@@ -60,8 +60,8 @@ public class GameService {
         gameDAO.updateGame(request.gameID(), request.playerColor(), username);
     }
 
-    public ListGameResult listGames(AuthData authData) throws Exception {
-        authorize(authData);
+    public ListGameResult listGames(String authToken) throws Exception {
+        authorize(authToken);
 
         Collection<GameData> data = gameDAO.listGames();
         Collection<GameInfo> gameList = new ArrayList<>();

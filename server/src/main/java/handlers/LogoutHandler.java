@@ -19,12 +19,11 @@ public class LogoutHandler implements Handler {
     @Override
     public void handle(@NotNull Context context) {
         String authToken = context.header("Authorization");
-        AuthData authData = authDAO.getAuth(authToken);
 
         AuthService service = new AuthService(authDAO);
 
         try {
-            service.logout(authData);
+            service.logout(authToken);
             context.status(200);
         } catch (UnauthorizedException e) {
             context.json(new ErrorResponse("Error: Unauthorized"));

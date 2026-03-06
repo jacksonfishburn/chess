@@ -11,16 +11,17 @@ public class AuthService {
         this.authDAO = authDAO;
     }
 
-    public String authorize(AuthData authData) throws Exception {
+    public String authorize(String authToken) throws Exception {
+        AuthData authData = authDAO.getAuth(authToken);
         if (authData == null) {
             throw new UnauthorizedException("Unauthorized");
         }
         return authData.username();
     }
 
-    public void logout(AuthData authData) throws Exception {
-        authorize(authData);
+    public void logout(String authToken) throws Exception {
+        authorize(authToken);
 
-        authDAO.deleteAuth(authData.authToken());
+        authDAO.deleteAuth(authToken);
     }
 }

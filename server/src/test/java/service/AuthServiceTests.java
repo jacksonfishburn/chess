@@ -11,6 +11,8 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.UUID;
+
 public class AuthServiceTests {
     AuthDAO authDAO;
     AuthService service;
@@ -32,30 +34,30 @@ public class AuthServiceTests {
     @Test
     public void positiveAuthorizeTest() throws Exception{
         String expected = "TestName";
-        String actual = service.authorize(authData);
+        String actual = service.authorize(authData.authToken());
 
         Assertions.assertEquals(expected, actual);
     }
 
     @Test
     public void negativeAuthorizeTest() {
-        AuthData nullAuth = null;
+        String badAuth = UUID.randomUUID().toString();
         Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.authorize(nullAuth);
+            service.authorize(badAuth);
         });
     }
 
     @Test
     public void positiveLogoutTest() throws Exception {
-        service.logout(authData);
+        service.logout(authData.authToken());
         Assertions.assertNull(authDAO.getAuth(authData.authToken()));
     }
 
     @Test
     public void negativeLogoutTest() {
-        AuthData nullAuth = null;
+        String badAuth = UUID.randomUUID().toString();
         Assertions.assertThrows(UnauthorizedException.class, () -> {
-            service.logout(nullAuth);
+            service.logout(badAuth);
         });
     }
 }

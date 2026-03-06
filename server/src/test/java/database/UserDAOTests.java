@@ -10,15 +10,12 @@ import org.mindrot.jbcrypt.BCrypt;
 
 
 public class UserDAOTests {
-    DatabaseUserDAO db = new DatabaseUserDAO();
-
-    public UserDAOTests() throws Exception {
-    }
+    DatabaseUserDAO db;
 
     @BeforeEach
     public void setup() throws Exception {
-        db.clear();
         db = new DatabaseUserDAO();
+        db.clear();
     }
 
     @Test
@@ -90,5 +87,19 @@ public class UserDAOTests {
         Assertions.assertFalse(db.verifyPassword(username, "wrongPassword"));
     }
 
+    @Test
+    public void clearTest() throws Exception {
+        UserData userData = new UserData("username", "password", "email");
+        db.createUser(userData);
+        UserData userData1 = new UserData("username1", "password1", "email1");
+        db.createUser(userData1);
+        UserData userData2 = new UserData("username2", "password2", "email2");
+        db.createUser(userData2);
 
+        db.clear();
+
+        Assertions.assertNull(db.getUser("username"));
+        Assertions.assertNull(db.getUser("username1"));
+        Assertions.assertNull(db.getUser("username2"));
+    }
 }
