@@ -48,8 +48,47 @@ public class UserDAOTests {
     }
 
     @Test
+    public void getExistingUserTest() throws Exception {
+        String username = "TestUser";
+        String password = "secretPassword";
+        String email = "EmailTest@email";
+
+        UserData userData = new UserData(username, password, email);
+        db.createUser(userData);
+
+        UserData result = db.getUser(username);
+        Assertions.assertEquals(username, result.username());
+        Assertions.assertTrue(BCrypt.checkpw(password, result.password()));
+        Assertions.assertEquals(email, result.email());
+    }
+
+    @Test
     public void getNonexistentUserTest() throws Exception {
         UserData result = db.getUser("username");
         Assertions.assertNull(result);
     }
+
+    @Test
+    public void verifyCorrectPasswordTest() throws Exception {
+        String username = "TestUser";
+        String password = "secretPassword";
+        String email = "EmailTest@email";
+
+        UserData userData = new UserData(username, password, email);
+        db.createUser(userData);
+        Assertions.assertTrue(db.verifyPassword(username, password));
+    }
+
+    @Test
+    public void verifyIncorrectPasswordTest() throws Exception {
+        String username = "TestUser";
+        String password = "secretPassword";
+        String email = "EmailTest@email";
+
+        UserData userData = new UserData(username, password, email);
+        db.createUser(userData);
+        Assertions.assertFalse(db.verifyPassword(username, "wrongPassword"));
+    }
+
+
 }
