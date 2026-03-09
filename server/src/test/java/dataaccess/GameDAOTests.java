@@ -13,25 +13,22 @@ import java.util.List;
 public class GameDAOTests {
     DatabaseGameDAO db;
 
+    String username = "TestName";
+    String gameName = "TestGame";
+    int id;
+
     @BeforeEach
     public void setup() throws Exception {
         db = new DatabaseGameDAO();
         db.clear();
+        id = db.createGame(username, gameName);
     }
 
     @Test
     public void createValidGameTest() throws Exception {
-        String username = "TestName";
-        String gameName = "TestGame";
-        int id = db.createGame(username, gameName);
-
         GameData result = db.getGame(id);
 
-        Assertions.assertEquals(gameName, result.gameName());
-        Assertions.assertEquals(id, result.gameID());
-        Assertions.assertNull(result.whiteUserName());
-        Assertions.assertNull(result.blackUserName());
-        Assertions.assertNotNull(result.game());
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -43,10 +40,6 @@ public class GameDAOTests {
 
     @Test
     public void getValidGameTest() throws Exception {
-        String username = "TestName";
-        String gameName = "TestGame";
-        int id = db.createGame(username, gameName);
-
         GameData result = db.getGame(id);
 
         Assertions.assertEquals(gameName, result.gameName());
@@ -58,12 +51,13 @@ public class GameDAOTests {
 
     @Test
     public void getNonexistentGameTest() throws Exception {
-        GameData result = db.getGame(1000);
+        GameData result = db.getGame(1234);
         Assertions.assertNull(result);
     }
 
     @Test
     public void listGamesTest() throws Exception {
+        db.clear();
         List<String> gameNames = List.of("name1", "name2", "name3");
         for (String gameName : gameNames) {
             db.createGame("username", gameName);
@@ -78,13 +72,13 @@ public class GameDAOTests {
 
     @Test
     public void emptyListTest() throws Exception {
+        db.clear();
         Collection<GameData> result = db.listGames();
         Assertions.assertTrue(result.isEmpty());
     }
 
     @Test
     public void updateGameTest() throws Exception {
-        int id = db.createGame("username", "gameName");
         db.updateGame(id, "BLACK", "blackUser");
         db.updateGame(id, "WHITE", "whiteUser");
 
@@ -109,5 +103,16 @@ public class GameDAOTests {
         db.createGame("username", "UsedName");
 
         Assertions.assertTrue(db.isNameTaken("UsedName"));
+    }
+
+    @Test
+    public void testClear() throws Exception {
+        List<String> gameNames = List.of("name1", "name2", "name3");
+        for (String gameName : gameNames) {
+            db.createGame("username", gameName);
+        }
+        db.clear();
+        Collection<GameData> gameList = db.listGames();
+        Assertions.assertTrue(gameList.isEmpty());
     }
 }

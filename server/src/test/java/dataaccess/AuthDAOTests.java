@@ -8,21 +8,20 @@ import org.junit.jupiter.api.Test;
 
 public class AuthDAOTests {
     DatabaseAuthDAO db;
+    String username = "TestName";
+    String auth;
 
     @BeforeEach
     public void setup() throws Exception {
         db = new DatabaseAuthDAO();
         db.clear();
+        auth = db.createAuth(username);
     }
 
     @Test
     public void successfulCreateAuthTest() throws Exception {
-        String username = "TestName";
-        String auth = db.createAuth(username);
-
         AuthData result = db.getAuth(auth);
-
-        Assertions.assertEquals(username, result.username());
+        Assertions.assertNotNull(result);
     }
 
     @Test
@@ -34,9 +33,6 @@ public class AuthDAOTests {
 
     @Test
     public void deleteValidAuthTest() throws Exception {
-        String username = "TestName";
-        String auth = db.createAuth(username);
-
         db.deleteAuth(auth);
         AuthData result = db.getAuth(auth);
 
@@ -52,11 +48,7 @@ public class AuthDAOTests {
 
     @Test
     public void getValidAuthTest() throws Exception {
-        String username = "TestName";
-        String auth = db.createAuth(username);
-
         AuthData result = db.getAuth(auth);
-
         Assertions.assertEquals(username, result.username());
     }
 

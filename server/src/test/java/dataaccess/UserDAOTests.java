@@ -9,34 +9,29 @@ import org.mindrot.jbcrypt.BCrypt;
 
 
 public class UserDAOTests {
-    DatabaseUserDAO db;
+    private DatabaseUserDAO db;
+
+    String username = "TestUser";
+    String password = "secretPassword";
+    String email = "EmailTest@email";
 
     @BeforeEach
     public void setup() throws Exception {
         db = new DatabaseUserDAO();
         db.clear();
+
+        UserData userData = new UserData(username, password, email);
+        db.createUser(userData);
     }
 
     @Test
     public void createValidUserTest() throws Exception {
-        String username = "TestUser";
-        String password = "secretPassword";
-        String email = "EmailTest@email";
-
-        UserData userData = new UserData(username, password, email);
-        db.createUser(userData);
-
         UserData result = db.getUser(username);
-        Assertions.assertEquals(username, result.username());
-        Assertions.assertTrue(BCrypt.checkpw(password, result.password()));
-        Assertions.assertEquals(email, result.email());
+        Assertions.assertNotNull(result);
     }
 
     @Test
     public void createInvalidNullUserTest() throws Exception {
-        String password = "secretPassword";
-        String email = "EmailTest@email";
-
         UserData userData = new UserData(null, password, email);
         Assertions.assertThrows(DataAccessException.class, () ->
                 db.createUser(userData)
@@ -45,13 +40,6 @@ public class UserDAOTests {
 
     @Test
     public void getExistingUserTest() throws Exception {
-        String username = "TestUser";
-        String password = "secretPassword";
-        String email = "EmailTest@email";
-
-        UserData userData = new UserData(username, password, email);
-        db.createUser(userData);
-
         UserData result = db.getUser(username);
         Assertions.assertEquals(username, result.username());
         Assertions.assertTrue(BCrypt.checkpw(password, result.password()));
@@ -66,23 +54,11 @@ public class UserDAOTests {
 
     @Test
     public void verifyCorrectPasswordTest() throws Exception {
-        String username = "TestUser";
-        String password = "secretPassword";
-        String email = "EmailTest@email";
-
-        UserData userData = new UserData(username, password, email);
-        db.createUser(userData);
         Assertions.assertTrue(db.verifyPassword(username, password));
     }
 
     @Test
     public void verifyIncorrectPasswordTest() throws Exception {
-        String username = "TestUser";
-        String password = "secretPassword";
-        String email = "EmailTest@email";
-
-        UserData userData = new UserData(username, password, email);
-        db.createUser(userData);
         Assertions.assertFalse(db.verifyPassword(username, "wrongPassword"));
     }
 
