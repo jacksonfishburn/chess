@@ -6,9 +6,20 @@ import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;
 
-public class DatabaseUserDAO implements UserDAO{
+public class DatabaseUserDAO extends DatabaseBaseDAO implements UserDAO{
 
     public DatabaseUserDAO() throws Exception {
+        String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS  users (
+              `username` varchar(256) NOT NULL,
+              `password` varchar(256) NOT NULL,
+              `email` varchar(256) NOT NULL,
+              PRIMARY KEY (`username`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        setCreateStatements(createStatements);
         configureDatabase();
     }
 
@@ -63,40 +74,9 @@ public class DatabaseUserDAO implements UserDAO{
         return BCrypt.checkpw(password, correctPassword);
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS  users (
-              `username` varchar(256) NOT NULL,
-              `password` varchar(256) NOT NULL,
-              `email` varchar(256) NOT NULL,
-              PRIMARY KEY (`username`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-    private void configureDatabase() throws Exception {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
-    }
-
     @Override
     public void clear() throws Exception {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "DROP TABLE IF EXISTS users";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-                configureDatabase();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
+        String statement = "DROP TABLE IF EXISTS users";
+        clearTable(statement);
     }
 }

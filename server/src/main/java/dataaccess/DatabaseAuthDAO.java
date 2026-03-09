@@ -86,4 +86,10 @@ public class DatabaseAuthDAO extends DatabaseBaseDAO implements AuthDAO {
     private static String generateToken() {
         return UUID.randomUUID().toString();
     }
+
+    @Override
+    public void clear() throws Exception {
+        String statement = "DROP TABLE IF EXISTS auth";
+        clearTable(statement);
+    }
 }

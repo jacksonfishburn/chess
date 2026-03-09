@@ -26,9 +26,8 @@ public class DatabaseBaseDAO {
         }
     }
 
-    public void clear() throws Exception {
+    public void clearTable(String statement) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "DROP TABLE IF EXISTS auth";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.executeUpdate();
                 configureDatabase();

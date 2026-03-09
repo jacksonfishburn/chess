@@ -13,11 +13,24 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Objects;
 
-public class DatabaseGameDAO implements GameDAO{
+public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
 
     int currentID = 1000;
 
     public DatabaseGameDAO() throws Exception {
+        String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS games (
+              `gameID` int NOT NULL,
+              `whiteUserName` varchar(256) DEFAULT NULL,
+              `blackUserName` varchar(256) DEFAULT NULL,
+              `gameName` varchar(256) NOT NULL,
+              `game` TEXT NOT NULL,
+              PRIMARY KEY (`gameID`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        setCreateStatements(createStatements);
         configureDatabase();
     }
 
@@ -122,40 +135,7 @@ public class DatabaseGameDAO implements GameDAO{
 
     @Override
     public void clear() throws Exception{
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "DROP TABLE IF EXISTS games";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-                configureDatabase();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
-    }
-
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS games (
-              `gameID` int NOT NULL,
-              `whiteUserName` varchar(256) DEFAULT NULL,
-              `blackUserName` varchar(256) DEFAULT NULL,
-              `gameName` varchar(256) NOT NULL,
-              `game` TEXT NOT NULL,
-              PRIMARY KEY (`gameID`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-    private void configureDatabase() throws Exception {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
+        String statement = "DROP TABLE IF EXISTS games";
+        clearTable(statement);
     }
 }
