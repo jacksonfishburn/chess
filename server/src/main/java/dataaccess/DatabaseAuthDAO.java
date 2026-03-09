@@ -9,9 +9,19 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.UUID;
 
-public class DatabaseAuthDAO implements AuthDAO {
+public class DatabaseAuthDAO extends DatabaseBaseDAO implements AuthDAO {
 
     public DatabaseAuthDAO() throws Exception {
+        String[] createStatements = {
+            """
+            CREATE TABLE IF NOT EXISTS auth (
+              `username` varchar(256) NOT NULL,
+              `authToken` varchar(256) NOT NULL,
+              PRIMARY KEY (`authToken`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+            """
+        };
+        setCreateStatements(createStatements);
         configureDatabase();
     }
 
@@ -73,43 +83,7 @@ public class DatabaseAuthDAO implements AuthDAO {
         return new AuthData(username, authToken);
     }
 
-    private final String[] createStatements = {
-            """
-            CREATE TABLE IF NOT EXISTS auth (
-              `username` varchar(256) NOT NULL,
-              `authToken` varchar(256) NOT NULL,
-              PRIMARY KEY (`authToken`)
-            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-            """
-    };
-
-    private void configureDatabase() throws Exception {
-        DatabaseManager.createDatabase();
-        try (Connection conn = DatabaseManager.getConnection()) {
-            for (String statement : createStatements) {
-                try (var preparedStatement = conn.prepareStatement(statement)) {
-                    preparedStatement.executeUpdate();
-                }
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
-    }
-
     private static String generateToken() {
         return UUID.randomUUID().toString();
-    }
-
-    @Override
-    public void clear() throws Exception {
-        try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "DROP TABLE IF EXISTS auth";
-            try (PreparedStatement ps = conn.prepareStatement(statement)) {
-                ps.executeUpdate();
-                configureDatabase();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
-        }
     }
 }

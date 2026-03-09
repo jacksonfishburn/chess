@@ -1,6 +1,5 @@
-package database;
+package dataaccess;
 
-import dataaccess.DatabaseGameDAO;
 import exceptions.DataAccessException;
 import models.GameData;
 import org.junit.jupiter.api.Assertions;
