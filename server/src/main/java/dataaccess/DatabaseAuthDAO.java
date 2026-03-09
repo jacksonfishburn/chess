@@ -56,7 +56,7 @@ public class DatabaseAuthDAO implements AuthDAO {
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, auth);
                 try (ResultSet rs = ps.executeQuery()) {
-                    return makeAuthObj(rs);
+                        return makeAuthObj(rs);
                 }
             }
         } catch (SQLException e) {

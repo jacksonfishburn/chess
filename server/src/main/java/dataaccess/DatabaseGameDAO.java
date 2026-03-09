@@ -7,6 +7,7 @@ import models.GameData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Collection;
 import java.util.List;
@@ -39,8 +40,32 @@ public class DatabaseGameDAO implements GameDAO{
     }
 
     @Override
-    public GameData getGame(int gameID) {
-        return null;
+    public GameData getGame(int gameID) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
+
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setInt(1, gameID);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return makeGameData(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
+    }
+
+    private GameData makeGameData(ResultSet rs) throws Exception {
+        if (!rs.next()) {
+            return null;
+        }
+        int gameID = rs.getInt("gameID");
+        String whiteUserName = rs.getString("whiteUsername");
+        String blackUserName = rs.getString("blackUsername");
+        String gameName = rs.getString("gameName");
+        ChessGame game = new Gson().fromJson(rs.getString("game"), ChessGame.class);
+
+        return new GameData(gameID, whiteUserName, blackUserName, gameName, game);
     }
 
     @Override
@@ -75,10 +100,10 @@ public class DatabaseGameDAO implements GameDAO{
             """
             CREATE TABLE IF NOT EXISTS games (
               `gameID` int NOT NULL,
-              `whiteUserName` varchar(256) NOT NULL,
-              `blackUserName` varchar(256) NOT NULL,
+              `whiteUserName` varchar(256) DEFAULT NULL,
+              `blackUserName` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
-              `game` TEXT DEFAULT NOT NULL
+              `game` TEXT NOT NULL,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """

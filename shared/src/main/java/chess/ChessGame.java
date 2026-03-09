@@ -13,8 +13,8 @@ import java.util.Objects;
 public class ChessGame {
     private ChessBoard board;
     private TeamColor playingTeam;
-    private final CastleLogic castleLogic;
-    private final EnPassant enPassant;
+    private final transient CastleLogic castleLogic;
+    private final transient EnPassant enPassant;
 
     public ChessGame() {
         board = new ChessBoard();
