@@ -46,11 +46,11 @@ public class DatabaseGameDAO implements GameDAO{
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
+
                 try (ResultSet rs = ps.executeQuery()) {
                     if (!rs.next()) {
                         return null;
-                    }
-                    return makeGameData(rs);
+                    } return makeGameData(rs);
                 }
             }
         } catch (SQLException e) {
@@ -75,11 +75,11 @@ public class DatabaseGameDAO implements GameDAO{
             var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
+
                     while (rs.next()) {
                         GameData game = makeGameData(rs);
                         gameList.add(game);
-                    }
-                    return gameList;
+                    } return gameList;
                 }
             }
         } catch (SQLException e) {
