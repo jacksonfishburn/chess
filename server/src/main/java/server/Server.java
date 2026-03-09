@@ -22,9 +22,11 @@ public class Server {
         try {
             userDAO = new DatabaseUserDAO();
             authDAO = new DatabaseAuthDAO();
+            gameDAO = new DatabaseGameDAO();
         } catch (Exception e) {
             userDAO = new MemoryUserDAO();
             authDAO = new MemoryAuthDAO();
+            gameDAO = new MemoryGameDAO();
         }
 
         javalin.post("/user", new RegisterHandler(userDAO, authDAO));

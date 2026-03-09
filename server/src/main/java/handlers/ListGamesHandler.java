@@ -34,7 +34,7 @@ public class ListGamesHandler implements Handler {
             context.json(new ErrorResponse("Error: Not Authorized"));
             context.status(401);
         } catch (Exception e) {
-            context.json(new ErrorResponse(e.getMessage()));
+            context.json(new ErrorResponse(String.format("Error: %s", e.getMessage())));
             context.status(500);
         }
     }

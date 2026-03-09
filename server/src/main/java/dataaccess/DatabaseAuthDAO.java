@@ -29,7 +29,7 @@ public class DatabaseAuthDAO implements AuthDAO {
                 return token;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -44,7 +44,7 @@ public class DatabaseAuthDAO implements AuthDAO {
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -60,7 +60,7 @@ public class DatabaseAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -92,7 +92,7 @@ public class DatabaseAuthDAO implements AuthDAO {
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -109,7 +109,7 @@ public class DatabaseAuthDAO implements AuthDAO {
                 configureDatabase();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 }

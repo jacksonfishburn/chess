@@ -27,7 +27,7 @@ public class ClearHandler implements Handler {
             clearService.clear();
             context.status(200);
         } catch (Exception e) {
-            context.json(new ErrorResponse(e.getMessage()));
+            context.json(new ErrorResponse(String.format("Error: %s", e.getMessage())));
             context.status(500);
         }
     }

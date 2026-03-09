@@ -26,7 +26,7 @@ public class DatabaseUserDAO implements UserDAO{
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -42,7 +42,7 @@ public class DatabaseUserDAO implements UserDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -83,7 +83,7 @@ public class DatabaseUserDAO implements UserDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -96,7 +96,7 @@ public class DatabaseUserDAO implements UserDAO{
                 configureDatabase();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 }

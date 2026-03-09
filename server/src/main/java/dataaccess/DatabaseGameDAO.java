@@ -36,7 +36,7 @@ public class DatabaseGameDAO implements GameDAO{
                 return currentID;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -55,7 +55,7 @@ public class DatabaseGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -84,7 +84,7 @@ public class DatabaseGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -101,7 +101,7 @@ public class DatabaseGameDAO implements GameDAO{
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -116,7 +116,7 @@ public class DatabaseGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -129,7 +129,7 @@ public class DatabaseGameDAO implements GameDAO{
                 configureDatabase();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 
@@ -155,7 +155,7 @@ public class DatabaseGameDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("failed to get connection", e);
+            throw new DataAccessException("Error: failed to get connection", e);
         }
     }
 }
