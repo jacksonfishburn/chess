@@ -82,4 +82,23 @@ public class GameDAOTests {
         Collection<GameData> result = db.listGames();
         Assertions.assertTrue(result.isEmpty());
     }
+
+    @Test
+    public void updateGameTest() throws Exception {
+        int id = db.createGame("username", "gameName");
+        db.updateGame(id, "BLACK", "blackUser");
+        db.updateGame(id, "WHITE", "whiteUser");
+
+        GameData result = db.getGame(id);
+        Assertions.assertEquals("blackUser", result.blackUserName());
+        Assertions.assertEquals("whiteUser", result.whiteUserName());
+    }
+
+    @Test
+    public void updateNonexistentGameTest() throws Exception {
+        db.updateGame(1234, "BLACK", "username");
+        Assertions.assertNull(db.getGame(1234));
+    }
+
+
 }

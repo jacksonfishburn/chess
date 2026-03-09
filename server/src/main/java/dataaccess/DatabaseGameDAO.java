@@ -11,6 +11,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Objects;
 
 public class DatabaseGameDAO implements GameDAO{
 
@@ -88,8 +89,20 @@ public class DatabaseGameDAO implements GameDAO{
     }
 
     @Override
-    public void updateGame(int gameID, String playerColor, String userName) {
-
+    public void updateGame(int gameID, String playerColor, String userName) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET blackUserName=? WHERE gameID=?";
+            if (Objects.equals(playerColor, "WHITE")) {
+                statement = "UPDATE games SET whiteUserName=? WHERE gameID=?";
+            }
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, userName);
+                ps.setInt(2, gameID);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
     }
 
     @Override
