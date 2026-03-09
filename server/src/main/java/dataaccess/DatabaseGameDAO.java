@@ -106,8 +106,18 @@ public class DatabaseGameDAO implements GameDAO{
     }
 
     @Override
-    public boolean isNameTaken(String name) {
-        return false;
+    public boolean isNameTaken(String name) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "SELECT gameName FROM games WHERE gameName=?";
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, name);
+                try (ResultSet rs = ps.executeQuery()) {
+                    return rs.next();
+                }
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
     }
 
     @Override

@@ -100,5 +100,15 @@ public class GameDAOTests {
         Assertions.assertNull(db.getGame(1234));
     }
 
+    @Test
+    public void nameNotTakenTest() throws Exception {
+        Assertions.assertFalse(db.isNameTaken("UnusedName"));
+    }
 
+    @Test
+    public void nameTakenTest() throws Exception {
+        db.createGame("username", "UsedName");
+
+        Assertions.assertTrue(db.isNameTaken("UsedName"));
+    }
 }
