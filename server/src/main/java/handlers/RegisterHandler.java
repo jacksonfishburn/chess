@@ -5,8 +5,8 @@ import dataaccess.UserDAO;
 import service.UserService;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
-import models.models.ErrorResponse;
-import models.models.UserData;
+import models.ErrorResponse;
+import models.UserData;
 import io.javalin.http.*;
 import org.jetbrains.annotations.NotNull;
 

@@ -1,6 +1,6 @@
 package dataaccess;
 
-import models.models.UserData;
+import models.UserData;
 
 public interface UserDAO {
     void createUser(UserData data) throws Exception;

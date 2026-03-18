@@ -5,9 +5,9 @@ import dataaccess.UserDAO;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import exceptions.UnauthorizedException;
-import models.models.LoginRequest;
-import models.models.SessionStartResult;
-import models.models.UserData;
+import models.LoginRequest;
+import models.SessionStartResult;
+import models.UserData;
 
 public class UserService {
     private final UserDAO userDAO;

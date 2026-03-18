@@ -1,6 +1,6 @@
 package dataaccess;
 
-import models.models.GameData;
+import models.GameData;
 
 import java.util.Collection;
 

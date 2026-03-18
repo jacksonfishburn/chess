@@ -1,7 +1,7 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import models.models.AuthData;
+import models.AuthData;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;

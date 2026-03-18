@@ -1,7 +1,7 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import models.models.UserData;
+import models.UserData;
 import org.mindrot.jbcrypt.BCrypt;
 
 import java.sql.*;

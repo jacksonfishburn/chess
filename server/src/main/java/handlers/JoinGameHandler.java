@@ -7,8 +7,8 @@ import exceptions.BadRequestException;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.models.ErrorResponse;
-import models.models.JoinGameRequest;
+import models.ErrorResponse;
+import models.JoinGameRequest;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 

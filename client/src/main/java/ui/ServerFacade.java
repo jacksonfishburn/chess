@@ -1,27 +1,53 @@
 package ui;
 
+import models.*;
+
 public class ServerFacade {
 
     private String authToken;
+    private final ClientCommunicator communicator;
 
-    public boolean login(String username, String password) {
-        return username != null && password != null;
+
+    public ServerFacade(String url) {
+        communicator = new ClientCommunicator(url);
     }
 
-    public void register(String username, String password) {
+    public SessionStartResult login(String username, String password) throws Exception {
+        LoginRequest request = new LoginRequest(username, password);
+        String message = JsonSerializer.toJson(request);
 
+        String responseMessage = communicator.post("/session", message, "");
+
+        SessionStartResult result = JsonSerializer.fromJson(responseMessage, SessionStartResult.class);
+        authToken = result.authToken();
+        return result;
     }
+
+    public SessionStartResult register(String username, String password, String email) throws Exception {
+        UserData request = new UserData(username, password, email);
+        String message = JsonSerializer.toJson(request);
+
+        String responseMessage = communicator.post("/user", message, "");
+
+        SessionStartResult result = JsonSerializer.fromJson(responseMessage, SessionStartResult.class);
+        authToken = result.authToken();
+        return result;
+    }
+
     public void logout() {
 
     }
-    public void createGame(String gameName) {
 
+    public CreateGameResult createGame(String gameName) {
+        return null;
     }
+
     public void joinGame(String playerColor, int gameID) {
 
     }
-    public void listGames() {
 
+    public ListGameResult listGames() {
+        return null;
     }
 
 }

@@ -1,17 +1,18 @@
 package ui;
 
-import models.models.CreateGameRequest;
+import models.SessionStartResult;
 
 import java.util.Scanner;
 
 public class Client {
 
-    ServerFacade server;
-    Scanner scanner;
+    private final ServerFacade server;
+    private final Scanner scanner;
 
     public Client() {
         scanner = new Scanner(System.in);
-        server = new ServerFacade();
+        String url = "http://localhost:8080";
+        server = new ServerFacade(url);
     }
 
     public void run() {
@@ -54,18 +55,28 @@ public class Client {
         String username = getInput("Username: ");
         String password = getInput("Password: ");
 
-        if (server.login(username, password)) {
+        try {
+            SessionStartResult result = server.login(username, password);
+            System.out.printf("\nWelcome back %s", result.username());
             mainMenu();
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
         }
-        return;
     }
 
     private void register() {
         System.out.println("\n___Register___\n");
         String username = getInput("Username: ");
         String password = getInput("Password: ");
+        String email = getInput("Email: ");
 
-        server.register(username, password);
+        try {
+            SessionStartResult result = server.register(username, password, email);
+            System.out.printf("\nRegistered as %s", result.username());
+            mainMenu();
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
     }
 
     private void mainMenu() {
@@ -117,8 +128,6 @@ public class Client {
         System.out.println("5. Play Game");
         System.out.println("6. Observe Game\n");
     }
-
-
 
     private String getInput(String label) {
         System.out.print(label);

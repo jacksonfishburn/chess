@@ -1,5 +1,8 @@
 package ui;
 
+import exceptions.BadResponseException;
+import models.ErrorResponse;
+
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -15,9 +18,9 @@ public class ClientCommunicator {
         this.url = url;
     }
 
-    public String post(String message, String authToken) throws Exception {
+    public String post(String path, String message, String authToken) throws Exception {
         HttpRequest request = HttpRequest.newBuilder()
-                .uri(new URI(url))
+                .uri(new URI(url + path))
                 .timeout(java.time.Duration.ofMillis(TIMEOUT_MILLIS))
                 .header("authorization", authToken)
                 .POST(HttpRequest.BodyPublishers.ofString(message, StandardCharsets.UTF_8))
@@ -29,7 +32,12 @@ public class ClientCommunicator {
             return httpResponse.body();
         }
         else {
-            throw new BadResponseException(httpResponse.body(), httpResponse.statusCode());
+            throw new BadResponseException(
+                    JsonSerializer.fromJson(httpResponse.body(), ErrorResponse.class).message(),
+                    httpResponse.statusCode()
+            );
         }
     }
+
+
 }

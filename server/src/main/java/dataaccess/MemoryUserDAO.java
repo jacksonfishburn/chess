@@ -1,6 +1,6 @@
 package dataaccess;
 
-import models.models.UserData;
+import models.UserData;
 
 import java.util.*;
 
