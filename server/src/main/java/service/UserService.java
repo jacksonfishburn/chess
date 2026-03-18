@@ -5,11 +5,9 @@ import dataaccess.UserDAO;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
 import exceptions.UnauthorizedException;
-import models.LoginRequest;
-import models.SessionStartResult;
-import models.UserData;
-
-import java.util.Objects;
+import models.models.LoginRequest;
+import models.models.SessionStartResult;
+import models.models.UserData;
 
 public class UserService {
     private final UserDAO userDAO;

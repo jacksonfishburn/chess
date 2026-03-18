@@ -4,8 +4,7 @@ import dataaccess.AuthDAO;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.AuthData;
-import models.ErrorResponse;
+import models.models.ErrorResponse;
 import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 

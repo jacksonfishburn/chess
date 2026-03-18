@@ -2,6 +2,8 @@ package ui;
 
 public class ServerFacade {
 
+    private String authToken;
+
     public boolean login(String username, String password) {
         return username != null && password != null;
     }
@@ -21,4 +23,5 @@ public class ServerFacade {
     public void listGames() {
 
     }
+
 }

@@ -1,7 +1,7 @@
 package dataaccess;
 
 import chess.ChessGame;
-import models.GameData;
+import models.models.GameData;
 
 import java.util.*;
 

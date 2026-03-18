@@ -5,9 +5,8 @@ import dataaccess.GameDAO;
 import exceptions.UnauthorizedException;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.AuthData;
-import models.ErrorResponse;
-import models.ListGameResult;
+import models.models.ErrorResponse;
+import models.models.ListGameResult;
 import org.jetbrains.annotations.NotNull;
 import service.GameService;
 

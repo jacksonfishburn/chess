@@ -6,8 +6,8 @@ import exceptions.UnauthorizedException;
 import dataaccess.UserDAO;
 import io.javalin.http.Context;
 import io.javalin.http.Handler;
-import models.ErrorResponse;
-import models.LoginRequest;
+import models.models.ErrorResponse;
+import models.models.LoginRequest;
 import org.jetbrains.annotations.NotNull;
 import service.UserService;
 

@@ -1,5 +1,7 @@
 package ui;
 
+import models.models.CreateGameRequest;
+
 import java.util.Scanner;
 
 public class Client {
@@ -62,6 +64,8 @@ public class Client {
         System.out.println("\n___Register___\n");
         String username = getInput("Username: ");
         String password = getInput("Password: ");
+
+        server.register(username, password);
     }
 
     private void mainMenu() {
@@ -79,7 +83,7 @@ public class Client {
                     System.out.println("\nBye!");
                     break label;
                 case "3":
-                    System.out.println("\ncreate game");
+                    createGame();
                     break;
                 case "4":
                     System.out.println("\nlist games");
@@ -97,6 +101,14 @@ public class Client {
         }
     }
 
+    private void createGame() {
+        String gameName = getInput("\nGame Name: ");
+
+        server.createGame(gameName);
+
+        System.out.printf("\nGame Created: %s%n", gameName);
+    }
+
     private void printMainMenu() {
         System.out.println("\n1. Help");
         System.out.println("2. Logout");
@@ -105,6 +117,8 @@ public class Client {
         System.out.println("5. Play Game");
         System.out.println("6. Observe Game\n");
     }
+
+
 
     private String getInput(String label) {
         System.out.print(label);

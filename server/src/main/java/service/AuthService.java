@@ -2,7 +2,7 @@ package service;
 
 import dataaccess.AuthDAO;
 import exceptions.UnauthorizedException;
-import models.AuthData;
+import models.models.AuthData;
 
 public class AuthService {
     private final AuthDAO authDAO;

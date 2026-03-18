@@ -4,7 +4,7 @@ import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import exceptions.AlreadyTakenException;
 import exceptions.BadRequestException;
-import models.*;
+import models.models.*;
 
 import java.util.ArrayList;
 import java.util.Collection;
