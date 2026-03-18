@@ -1,6 +1,5 @@
 package ui;
 
-import models.CreateGameResult;
 import models.GameInfo;
 import models.ListGameResult;
 import models.SessionStartResult;
@@ -147,8 +146,7 @@ public class Client {
     private void listGames() {
         int i = 0;
         try {
-            ListGameResult result = server.listGames();
-            Collection<GameInfo> games = result.games();
+            Collection<GameInfo> games = getGameList();
             System.out.println("\nGames:");
             for (GameInfo game : games) {
                 i++;
@@ -158,6 +156,13 @@ public class Client {
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }
+    }
+
+
+
+    private Collection<GameInfo> getGameList() throws Exception {
+        ListGameResult result = server.listGames();
+        return result.games();
     }
 
     private String getInput(String label) {

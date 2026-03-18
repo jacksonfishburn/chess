@@ -48,7 +48,12 @@ public class ServerFacade {
         return JsonSerializer.fromJson(responseMessage, ListGameResult.class);
     }
 
-    public void joinGame(String playerColor, int gameID) {
+    public void joinGame(String playerColor, int gameID) throws Exception {
+        JoinGameRequest request = new JoinGameRequest(playerColor, gameID);
+        String message = JsonSerializer.toJson(request);
 
+        communicator.put("/game", message, authToken);
     }
+
+
 }
