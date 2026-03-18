@@ -14,20 +14,18 @@ public class ServerFacade {
 
     public SessionStartResult login(String username, String password) throws Exception {
         LoginRequest request = new LoginRequest(username, password);
-        String message = JsonSerializer.toJson(request);
 
-        String responseMessage = communicator.post("/session", message, "");
-
-        SessionStartResult result = JsonSerializer.fromJson(responseMessage, SessionStartResult.class);
-        authToken = result.authToken();
-        return result;
+        return startSession("/session", JsonSerializer.toJson(request));
     }
 
     public SessionStartResult register(String username, String password, String email) throws Exception {
         UserData request = new UserData(username, password, email);
-        String message = JsonSerializer.toJson(request);
 
-        String responseMessage = communicator.post("/user", message, "");
+        return startSession("/user", JsonSerializer.toJson(request));
+    }
+
+    private SessionStartResult startSession(String path, String message) throws Exception {
+        String responseMessage = communicator.post(path, message, "");
 
         SessionStartResult result = JsonSerializer.fromJson(responseMessage, SessionStartResult.class);
         authToken = result.authToken();
@@ -38,8 +36,12 @@ public class ServerFacade {
 
     }
 
-    public CreateGameResult createGame(String gameName) {
-        return null;
+    public CreateGameResult createGame(String gameName) throws Exception {
+        CreateGameRequest request = new CreateGameRequest(gameName);
+        String message = JsonSerializer.toJson(request);
+
+        String responseMessage = communicator.post("/game", message, authToken);
+        return JsonSerializer.fromJson(responseMessage, CreateGameResult.class);
     }
 
     public void joinGame(String playerColor, int gameID) {

@@ -1,7 +1,7 @@
 package dataaccess;
 
 import exceptions.DataAccessException;
-import models.models.GameData;
+import models.GameData;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

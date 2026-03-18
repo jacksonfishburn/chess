@@ -1,5 +1,9 @@
 package ui;
 
-public class ChessBoard {
+import chess.ChessPiece;
 
+public class ChessBoard {
+    public void drawBoard(chess.ChessBoard board) {
+
+    }
 }

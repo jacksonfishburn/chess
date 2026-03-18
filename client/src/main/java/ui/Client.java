@@ -1,5 +1,7 @@
 package ui;
 
+import models.CreateGameRequest;
+import models.CreateGameResult;
 import models.SessionStartResult;
 
 import java.util.Scanner;
@@ -123,6 +125,13 @@ public class Client {
 
     private void createGame() {
         String gameName = getInput("\nGame Name: ");
+
+        try {
+            CreateGameResult result = server.createGame(gameName);
+            System.out.printf("\n%s created\n", gameName);
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
     }
 
     private String getInput(String label) {
