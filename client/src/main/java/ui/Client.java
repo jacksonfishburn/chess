@@ -28,7 +28,7 @@ public class Client {
                     System.out.println("\nHere's some help!");
                     break;
                 case "2":
-                    System.out.println("Bye!");
+                    System.out.println("Bye!\n");
                     break label;
                 case "3":
                     login();
@@ -72,7 +72,7 @@ public class Client {
 
         try {
             SessionStartResult result = server.register(username, password, email);
-            System.out.printf("\nRegistered as %s", result.username());
+            System.out.printf("\nRegistered as %s\n", result.username());
             mainMenu();
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
@@ -112,14 +112,6 @@ public class Client {
         }
     }
 
-    private void createGame() {
-        String gameName = getInput("\nGame Name: ");
-
-        server.createGame(gameName);
-
-        System.out.printf("\nGame Created: %s%n", gameName);
-    }
-
     private void printMainMenu() {
         System.out.println("\n1. Help");
         System.out.println("2. Logout");
@@ -127,6 +119,10 @@ public class Client {
         System.out.println("4. List Games");
         System.out.println("5. Play Game");
         System.out.println("6. Observe Game\n");
+    }
+
+    private void createGame() {
+        String gameName = getInput("\nGame Name: ");
     }
 
     private String getInput(String label) {
