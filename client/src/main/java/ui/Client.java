@@ -1,9 +1,11 @@
 package ui;
 
-import models.CreateGameRequest;
 import models.CreateGameResult;
+import models.GameInfo;
+import models.ListGameResult;
 import models.SessionStartResult;
 
+import java.util.Collection;
 import java.util.Scanner;
 
 public class Client {
@@ -59,7 +61,7 @@ public class Client {
 
         try {
             SessionStartResult result = server.login(username, password);
-            System.out.printf("\nWelcome back %s", result.username());
+            System.out.printf("\nWelcome back %s\n", result.username());
             mainMenu();
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
@@ -93,13 +95,13 @@ public class Client {
                     System.out.println("\nHere's some help!");
                     break;
                 case "2":
-                    System.out.println("\nBye!");
+                    logout();
                     break label;
                 case "3":
                     createGame();
                     break;
                 case "4":
-                    System.out.println("\nlist games");
+                    listGames();
                     break;
                 case "5":
                     System.out.println("\nplay game");
@@ -123,12 +125,36 @@ public class Client {
         System.out.println("6. Observe Game\n");
     }
 
+    private void logout() {
+        try {
+            server.logout();
+            System.out.println("Bye!");
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
+    }
+
     private void createGame() {
         String gameName = getInput("\nGame Name: ");
-
         try {
-            CreateGameResult result = server.createGame(gameName);
+            server.createGame(gameName);
             System.out.printf("\n%s created\n", gameName);
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
+    }
+
+    private void listGames() {
+        int i = 0;
+        try {
+            ListGameResult result = server.listGames();
+            Collection<GameInfo> games = result.games();
+            System.out.println("\nGames:");
+            for (GameInfo game : games) {
+                i++;
+                System.out.printf("%n%d. %s", i, game.gameName());
+            }
+            System.out.println("\n");
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }

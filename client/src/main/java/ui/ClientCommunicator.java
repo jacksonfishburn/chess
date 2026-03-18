@@ -43,12 +43,12 @@ public class ClientCommunicator {
         return sendAndReturn(request);
     }
 
-    public String delete(String path, String authToken) throws Exception {
+    public void delete(String path, String authToken) throws Exception {
         HttpRequest request = createHttpBuilder(path, authToken)
                 .DELETE()
                 .build();
 
-        return sendAndReturn(request);
+        sendAndReturn(request);
     }
 
     private HttpRequest.Builder createHttpBuilder(String path, String authToken) throws Exception {

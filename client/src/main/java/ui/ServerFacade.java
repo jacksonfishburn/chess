@@ -32,24 +32,23 @@ public class ServerFacade {
         return result;
     }
 
-    public void logout() {
-
+    public void logout() throws Exception {
+        communicator.delete("/session", authToken);
     }
 
-    public CreateGameResult createGame(String gameName) throws Exception {
+    public void createGame(String gameName) throws Exception {
         CreateGameRequest request = new CreateGameRequest(gameName);
         String message = JsonSerializer.toJson(request);
 
-        String responseMessage = communicator.post("/game", message, authToken);
-        return JsonSerializer.fromJson(responseMessage, CreateGameResult.class);
+        communicator.post("/game", message, authToken);
+    }
+
+    public ListGameResult listGames() throws Exception{
+        String responseMessage = communicator.get("/game", authToken);
+        return JsonSerializer.fromJson(responseMessage, ListGameResult.class);
     }
 
     public void joinGame(String playerColor, int gameID) {
 
     }
-
-    public ListGameResult listGames() {
-        return null;
-    }
-
 }
