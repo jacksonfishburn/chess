@@ -50,6 +50,7 @@ public class ChessBoard {
         }
         System.out.print("   ");
         System.out.print(RESET_BG_COLOR);
+        System.out.print(RESET_TEXT_COLOR);
         System.out.print("\n");
     }
 

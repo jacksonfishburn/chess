@@ -1,10 +1,15 @@
 package ui;
 
+import chess.ChessBoard;
+import chess.ChessGame;
+import exceptions.OutOfRangeException;
 import models.GameInfo;
 import models.ListGameResult;
 import models.SessionStartResult;
 
 import java.util.Collection;
+import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
 
 public class Client {
@@ -103,7 +108,7 @@ public class Client {
                     listGames();
                     break;
                 case "5":
-                    System.out.println("\nplay game");
+                    playGame();
                     break;
                 case "6":
                     System.out.println("\nobserve game");
@@ -147,7 +152,7 @@ public class Client {
         int i = 0;
         try {
             Collection<GameInfo> games = getGameList();
-            System.out.println("\nGames:");
+            System.out.println("\n___Games___");
             for (GameInfo game : games) {
                 i++;
                 System.out.printf("%n%d. %s", i, game.gameName());
@@ -158,15 +163,67 @@ public class Client {
         }
     }
 
-
-
-    private Collection<GameInfo> getGameList() throws Exception {
+    private List<GameInfo> getGameList() throws Exception {
         ListGameResult result = server.listGames();
-        return result.games();
+        return (List<GameInfo>) result.games();
+    }
+
+    private void playGame() {
+        String gameNum = getInput("\nGame Number: ");
+        String inputColor = getInput("Team (white/1, black/2): ");
+
+        try {
+            List<GameInfo> games = getGameList();
+            int gameIndex = Integer.parseInt(gameNum) - 1;
+            ensureNumInRange(gameIndex, games.size());
+            String color = getTeamColor(inputColor);
+            boolean isWhite = Objects.equals(color, "WHITE");
+
+            GameInfo game = games.get(gameIndex);
+
+            server.joinGame(color, game.gameID());
+            drawBoard(isWhite);
+
+        } catch (NumberFormatException e) {
+            System.out.println("\nYou must input a number");
+        } catch (OutOfRangeException e) {
+            System.out.println("\nA number you gave was invalid");
+        }
+        catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
+    }
+
+    private void ensureNumInRange(int num, int range) {
+        if (num < 0 || num > range) {
+            throw new OutOfRangeException("");
+        }
+    }
+
+    private String getTeamColor(String input) {
+        int i = Integer.parseInt(input);
+
+        if (i == 1) {
+            return "WHITE";
+        }
+        if (i == 2) {
+            return "BLACK";
+        }
+        else {
+            throw new OutOfRangeException("");
+        }
     }
 
     private String getInput(String label) {
         System.out.print(label);
         return scanner.nextLine().trim();
+    }
+
+    private void drawBoard(boolean isWhitePlayer) {
+        ChessGame game = new ChessGame();
+        ChessBoard board = game.getBoard();
+        ui.ChessBoard boardDrawer = new ui.ChessBoard();
+        System.out.print("\n");
+        boardDrawer.drawGame(board, isWhitePlayer);
     }
 }
