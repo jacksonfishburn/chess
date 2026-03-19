@@ -7,6 +7,7 @@ public class ChessBoardRunner {
         chess.ChessBoard board = new chess.ChessBoard();
 
         ui.ChessBoard boardDrawer = new ui.ChessBoard();
+        board.resetBoard();
 
         boardDrawer.drawGame(board, true);
     }

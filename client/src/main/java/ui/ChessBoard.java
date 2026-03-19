@@ -1,10 +1,16 @@
 package ui;
 
 
+import chess.ChessGame;
+import chess.ChessPiece;
+import chess.ChessPosition;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import static ui.EscapeSequences.*;
+import static ui.EscapeSequences.BLACK_KING;
+import static ui.EscapeSequences.BLACK_ROOK;
 
 public class ChessBoard {
 
@@ -13,8 +19,9 @@ public class ChessBoard {
 
     private int startIndex;
     private int direction;
+    private chess.ChessBoard board;
 
-    public void drawGame(chess.ChessBoard chessBoard, boolean isWhitePlayer) {
+    public void drawGame(chess.ChessBoard board, boolean isWhitePlayer) {
         startIndex = 1;
         direction = 1;
         if (isWhitePlayer) {
@@ -22,8 +29,10 @@ public class ChessBoard {
             direction = -1;
         }
 
+        this.board = board;
+
         drawFiles();
-        drawBoard(chessBoard);
+        drawBoard();
         drawFiles();
     }
 
@@ -42,7 +51,7 @@ public class ChessBoard {
         System.out.print("\n");
     }
 
-    private void drawBoard(chess.ChessBoard chessBoard) {
+    private void drawBoard() {
         int rowTally = 0;
         for (int currentRow = startIndex; rowTally < 8; currentRow += direction) {
             rowTally++;
@@ -52,9 +61,11 @@ public class ChessBoard {
 
             for (int currentCol = startIndex; colTally < 8; currentCol += direction) {
                 colTally++;
+
                 drawSquare(currentRow, currentCol);
             }
             drawRank(currentRow);
+
             System.out.print(SET_BG_COLOR_DARK_GREY);
             System.out.print("\n");
         }
@@ -71,14 +82,85 @@ public class ChessBoard {
         String bgColor = determineBgColor(row, col);
 
         System.out.print(bgColor);
-        System.out.print("   ");
+        drawPiece(row, col);
     }
 
     private String determineBgColor(int row, int col) {
         int total = row + col;
         if (total % 2 == 0) {
-            return SET_BG_COLOR_WHITE;
+
+            return SET_BG_COLOR_BLUE;
         }
-        return SET_BG_COLOR_BLACK;
+        return SET_BG_COLOR_MAGENTA;
+    }
+
+    private void drawPiece(int row, int col) {
+        ChessPosition pos = new ChessPosition(row, col);
+        ChessPiece piece = board.getPiece(pos);
+
+        String pieceString = getPieceString(piece);
+        System.out.print(pieceString);
+    }
+
+    private String getPieceString(ChessPiece piece) {
+        if (piece == null) {
+            return "   ";
+        }
+        if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
+            return findWhitePiece(piece.getPieceType());
+        }
+        return findBlackPiece(piece.getPieceType());
+    }
+
+    private String findWhitePiece(ChessPiece.PieceType type) {
+        switch (type) {
+            case PAWN -> {
+                return WHITE_PAWN;
+            }
+            case ROOK -> {
+                return WHITE_ROOK;
+            }
+            case KNIGHT -> {
+                return WHITE_KNIGHT;
+            }
+            case BISHOP -> {
+                return WHITE_BISHOP;
+            }
+            case QUEEN -> {
+                return WHITE_QUEEN;
+            }
+            case KING -> {
+                return WHITE_KING;
+            }
+            default -> {
+                return "   ";
+            }
+        }
+    }
+
+    private String findBlackPiece(ChessPiece.PieceType type) {
+        switch (type) {
+            case PAWN -> {
+                return BLACK_PAWN;
+            }
+            case ROOK -> {
+                return BLACK_ROOK;
+            }
+            case KNIGHT -> {
+                return BLACK_KNIGHT;
+            }
+            case BISHOP -> {
+                return BLACK_BISHOP;
+            }
+            case QUEEN -> {
+                return BLACK_QUEEN;
+            }
+            case KING -> {
+                return BLACK_KING;
+            }
+            default -> {
+                return "   ";
+            }
+        }
     }
 }
