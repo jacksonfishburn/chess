@@ -9,23 +9,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ui.EscapeSequences.*;
-import static ui.EscapeSequences.BLACK_KING;
-import static ui.EscapeSequences.BLACK_ROOK;
+
 
 public class ChessBoard {
 
     private final static List<String> files = new ArrayList<>(
             List.of(" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "));
 
-    private int startIndex;
+    private int startRow;
+    private int startCol;
     private int direction;
     private chess.ChessBoard board;
 
     public void drawGame(chess.ChessBoard board, boolean isWhitePlayer) {
-        startIndex = 1;
+        startRow = 1;
+        startCol = 8;
         direction = 1;
         if (isWhitePlayer) {
-            startIndex = 8;
+            startRow = 8;
+            startCol = 1;
             direction = -1;
         }
 
@@ -37,43 +39,44 @@ public class ChessBoard {
     }
 
     private void drawFiles() {
-        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        System.out.print(SET_TEXT_COLOR_BLACK);
+        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
 
-        int i = startIndex - 1;
+        int i = startRow - 1;
         System.out.print("   ");
         for (int x = 0; x < 8; x++) {
             System.out.print(files.get(i));
             i += direction;
         }
         System.out.print("   ");
-        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.print(RESET_BG_COLOR);
         System.out.print("\n");
     }
 
     private void drawBoard() {
         int rowTally = 0;
-        for (int currentRow = startIndex; rowTally < 8; currentRow += direction) {
+        for (int currentRow = startRow; rowTally < 8; currentRow += direction) {
             rowTally++;
             int colTally = 0;
 
             drawRank(currentRow);
 
-            for (int currentCol = startIndex; colTally < 8; currentCol += direction) {
+            for (int currentCol = startCol; colTally < 8; currentCol -= direction) {
                 colTally++;
 
                 drawSquare(currentRow, currentCol);
+                System.out.print(RESET_TEXT_BOLD_FAINT);
             }
             drawRank(currentRow);
 
-            System.out.print(SET_BG_COLOR_DARK_GREY);
+            System.out.print(RESET_BG_COLOR);
             System.out.print("\n");
         }
     }
 
     private void drawRank(int i) {
-        System.out.print(SET_BG_COLOR_LIGHT_GREY);
-        System.out.print(SET_TEXT_COLOR_BLACK);
+        System.out.print(SET_BG_COLOR_DARK_GREY);
+        System.out.print(SET_TEXT_COLOR_LIGHT_GREY);
 
         System.out.printf(" %d ", i);
     }
@@ -88,10 +91,9 @@ public class ChessBoard {
     private String determineBgColor(int row, int col) {
         int total = row + col;
         if (total % 2 == 0) {
-
-            return SET_BG_COLOR_BLUE;
+            return SET_BG_COLOR_DARK_GREEN;
         }
-        return SET_BG_COLOR_MAGENTA;
+        return SET_BG_COLOR_BLUE;
     }
 
     private void drawPiece(int row, int col) {
@@ -99,6 +101,7 @@ public class ChessBoard {
         ChessPiece piece = board.getPiece(pos);
 
         String pieceString = getPieceString(piece);
+        System.out.print(SET_TEXT_BOLD);
         System.out.print(pieceString);
     }
 
@@ -106,57 +109,32 @@ public class ChessBoard {
         if (piece == null) {
             return "   ";
         }
+        System.out.print(SET_TEXT_COLOR_BLACK);
         if (piece.getTeamColor() == ChessGame.TeamColor.WHITE) {
-            return findWhitePiece(piece.getPieceType());
+            System.out.print(SET_TEXT_COLOR_WHITE);
         }
-        return findBlackPiece(piece.getPieceType());
+        return findPiece(piece.getPieceType());
     }
 
-    private String findWhitePiece(ChessPiece.PieceType type) {
+    private String findPiece(ChessPiece.PieceType type) {
         switch (type) {
             case PAWN -> {
-                return WHITE_PAWN;
+                return " p ";
             }
             case ROOK -> {
-                return WHITE_ROOK;
+                return " R ";
             }
             case KNIGHT -> {
-                return WHITE_KNIGHT;
+                return " N ";
             }
             case BISHOP -> {
-                return WHITE_BISHOP;
+                return " B ";
             }
             case QUEEN -> {
-                return WHITE_QUEEN;
+                return " Q ";
             }
             case KING -> {
-                return WHITE_KING;
-            }
-            default -> {
-                return "   ";
-            }
-        }
-    }
-
-    private String findBlackPiece(ChessPiece.PieceType type) {
-        switch (type) {
-            case PAWN -> {
-                return BLACK_PAWN;
-            }
-            case ROOK -> {
-                return BLACK_ROOK;
-            }
-            case KNIGHT -> {
-                return BLACK_KNIGHT;
-            }
-            case BISHOP -> {
-                return BLACK_BISHOP;
-            }
-            case QUEEN -> {
-                return BLACK_QUEEN;
-            }
-            case KING -> {
-                return BLACK_KING;
+                return " K ";
             }
             default -> {
                 return "   ";
