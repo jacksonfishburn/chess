@@ -33,7 +33,7 @@ public class Client {
 
             switch (choice) {
                 case "1":
-                    System.out.println("\nHere's some help!");
+                    printStartMenuHelp();
                     break;
                 case "2":
                     System.out.println("Bye!\n");
@@ -49,6 +49,13 @@ public class Client {
                     break;
             }
         }
+    }
+
+    private void printStartMenuHelp() {
+        System.out.println("\nHelp: Menu option details");
+        System.out.println("Quit: Exit the program");
+        System.out.println("Login: Sign into chess account");
+        System.out.println("Register: Create chess account");
     }
 
     private void printStartMenu() {
@@ -96,7 +103,7 @@ public class Client {
 
             switch (choice) {
                 case "1":
-                    System.out.println("\nHere's some help!");
+                    printMainMenuHelp();
                     break;
                 case "2":
                     logout();
@@ -118,6 +125,15 @@ public class Client {
                     break;
             }
         }
+    }
+
+    private void printMainMenuHelp() {
+        System.out.println("\nHelp: Menu Option Details");
+        System.out.println("Logout: Sign out of current account and return to start menu");
+        System.out.println("Create Game: Create a chess game (doesn't join game)");
+        System.out.println("List Games: See a list of all current games");
+        System.out.println("Play Game: Join and play a chess game");
+        System.out.println("Observe Game: View the state of a game");
     }
 
     private void printMainMenu() {
