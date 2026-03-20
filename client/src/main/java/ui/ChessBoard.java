@@ -13,7 +13,7 @@ import static ui.EscapeSequences.*;
 
 public class ChessBoard {
 
-    private final static List<String> files = new ArrayList<>(
+    private final static List<String> FILES = new ArrayList<>(
             List.of(" h ", " g ", " f ", " e ", " d ", " c ", " b ", " a "));
 
     private int startRow;
@@ -45,7 +45,7 @@ public class ChessBoard {
         int i = startRow - 1;
         System.out.print("   ");
         for (int x = 0; x < 8; x++) {
-            System.out.print(files.get(i));
+            System.out.print(FILES.get(i));
             i += direction;
         }
         System.out.print("   ");
