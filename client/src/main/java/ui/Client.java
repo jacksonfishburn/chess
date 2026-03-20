@@ -45,7 +45,7 @@ public class Client {
                     register();
                     break;
                 default:
-                    System.out.println("Invalid Input. Enter a number 1-4.");
+                    System.out.println("\nInvalid Input. Enter a number 1-4.");
                     break;
             }
         }
@@ -121,7 +121,7 @@ public class Client {
                     observeGame();
                     break;
                 default:
-                    System.out.println("Invalid Input. Enter a number 1-6.");
+                    System.out.println("\nInvalid Input. Enter a number 1-6.");
                     break;
             }
         }
@@ -171,9 +171,8 @@ public class Client {
             System.out.println("\n___Games___");
             for (GameInfo game : games) {
                 i++;
-                System.out.printf("%n%d. %s", i, game.gameName());
+                System.out.printf("%d. %s%n", i, game.gameName());
             }
-            System.out.println("\n");
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }
