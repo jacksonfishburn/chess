@@ -4,7 +4,7 @@ import models.*;
 
 public class ServerFacade {
 
-    private String authToken;
+    private String authToken = "notnull";
     private final ClientCommunicator communicator;
 
 
@@ -43,7 +43,7 @@ public class ServerFacade {
         communicator.post("/game", message, authToken);
     }
 
-    public ListGameResult listGames() throws Exception{
+    public ListGameResult listGames() throws Exception {
         String responseMessage = communicator.get("/game", authToken);
         return JsonSerializer.fromJson(responseMessage, ListGameResult.class);
     }
@@ -55,5 +55,7 @@ public class ServerFacade {
         communicator.put("/game", message, authToken);
     }
 
-
+    public void clear() throws Exception {
+        communicator.delete("/db", authToken);
+    }
 }
