@@ -111,7 +111,7 @@ public class Client {
                     playGame();
                     break;
                 case "6":
-                    System.out.println("\nobserve game");
+                    observeGame();
                     break;
                 default:
                     System.out.println("Invalid Input. Enter a number 1-6.");
@@ -175,7 +175,7 @@ public class Client {
         try {
             List<GameInfo> games = getGameList();
             int gameIndex = Integer.parseInt(gameNum) - 1;
-            ensureNumInRange(gameIndex, games.size());
+            ensureNumInRange(gameIndex, games.size() - 1);
             String color = getTeamColor(inputColor);
             boolean isWhite = Objects.equals(color, "WHITE");
 
@@ -188,8 +188,7 @@ public class Client {
             System.out.println("\nYou must input a number");
         } catch (OutOfRangeException e) {
             System.out.println("\nA number you gave was invalid");
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }
     }
@@ -201,8 +200,13 @@ public class Client {
     }
 
     private String getTeamColor(String input) {
+        if (Objects.equals(input, "white")) {
+            return "WHITE";
+        }
+        if (Objects.equals(input, "black")) {
+            return "BLACK";
+        }
         int i = Integer.parseInt(input);
-
         if (i == 1) {
             return "WHITE";
         }
@@ -217,6 +221,27 @@ public class Client {
     private String getInput(String label) {
         System.out.print(label);
         return scanner.nextLine().trim();
+    }
+
+    private void observeGame() {
+        String gameNum = getInput("\nGame Number: ");
+
+        try {
+            List<GameInfo> games = getGameList();
+            int gameIndex = Integer.parseInt(gameNum) - 1;
+            ensureNumInRange(gameIndex, games.size() - 1);
+
+            GameInfo game = games.get(gameIndex);
+
+            drawBoard(true);
+
+        } catch (NumberFormatException e) {
+            System.out.println("\nYou must input a number");
+        } catch (OutOfRangeException e) {
+            System.out.println("\nA number you gave was invalid");
+        } catch (Exception e) {
+            System.out.printf("\n%s\n", e.getMessage());
+        }
     }
 
     private void drawBoard(boolean isWhitePlayer) {
