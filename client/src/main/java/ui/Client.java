@@ -171,7 +171,10 @@ public class Client {
             System.out.println("\n___Games___");
             for (GameInfo game : games) {
                 i++;
-                System.out.printf("%d. %s%n", i, game.gameName());
+                String white = (game.whiteUsername() == null) ? "Open" : game.whiteUsername();
+                String black = (game.blackUsername() == null) ? "Open" : game.blackUsername();
+                System.out.printf("%d. %s | white: %s - black: %s%n",
+                        i, game.gameName(), white, black);
             }
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
