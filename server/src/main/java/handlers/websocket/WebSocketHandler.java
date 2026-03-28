@@ -33,7 +33,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void connect(String authToken, int gameID, Session session) {
-
+        connections.add(session, gameID);
     }
 
 
