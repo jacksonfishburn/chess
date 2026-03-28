@@ -3,6 +3,7 @@ package server;
 import dataaccess.*;
 import handlers.*;
 
+import handlers.websocket.WebSocketHandler;
 import io.javalin.*;
 import io.javalin.json.JavalinGson;
 
