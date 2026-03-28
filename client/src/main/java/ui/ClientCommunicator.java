@@ -1,6 +1,7 @@
 package ui;
 
 import exceptions.BadResponseException;
+import json.JsonSerializer;
 import models.ErrorResponse;
 
 import java.net.URI;

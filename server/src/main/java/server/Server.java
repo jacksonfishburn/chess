@@ -9,15 +9,17 @@ import io.javalin.json.JavalinGson;
 public class Server {
 
     private final Javalin javalin;
-    UserDAO userDAO;
-    AuthDAO authDAO;
-    GameDAO gameDAO = new MemoryGameDAO();
 
     public Server() {
         javalin = Javalin.create(config -> {
             config.jsonMapper(new JavalinGson());
             config.staticFiles.add("web");
         });
+
+        UserDAO userDAO;
+        AuthDAO authDAO;
+        GameDAO gameDAO;
+        WebSocketHandler wsHandler = new WebSocketHandler();
 
         try {
             userDAO = new DatabaseUserDAO();
@@ -38,6 +40,12 @@ public class Server {
         javalin.get("/game", new ListGamesHandler(authDAO, gameDAO));
 
         javalin.delete("/db", new ClearHandler(userDAO, authDAO, gameDAO));
+
+        javalin.ws("/ws", ws -> {
+            ws.onConnect(wsHandler);
+            ws.onClose(wsHandler);
+            ws.onMessage(wsHandler);
+        });
     }
 
     public int run(int desiredPort) {

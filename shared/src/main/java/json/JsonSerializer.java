@@ -1,4 +1,4 @@
-package ui;
+package json;
 
 import com.google.gson.Gson;
 

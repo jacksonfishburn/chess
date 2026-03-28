@@ -1,5 +1,6 @@
 package ui;
 
+import json.JsonSerializer;
 import models.*;
 
 public class ServerFacade {
