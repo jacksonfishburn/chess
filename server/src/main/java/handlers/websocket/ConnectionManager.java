@@ -32,4 +32,16 @@ public class ConnectionManager {
             }
         }
     }
+
+    public void sendTo(Session session, int gameID, ServerMessage message) throws IOException {
+        String msg = JsonSerializer.toJson(message);
+        Set<Session> players = connections.getOrDefault(gameID, Set.of());
+        for (Session s : players) {
+            if (s.isOpen()) {
+                if (s.equals(session)) {
+                    s.getRemote().sendString(msg);
+                }
+            }
+        }
+    }
 }
