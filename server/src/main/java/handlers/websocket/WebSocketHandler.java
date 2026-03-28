@@ -1,9 +1,9 @@
 package handlers.websocket;
 
+import chess.ChessGame;
 import dataaccess.GameDAO;
 import io.javalin.websocket.*;
 import json.JsonSerializer;
-import models.GameData;
 import org.jetbrains.annotations.NotNull;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
@@ -11,7 +11,7 @@ import websocket.messages.ServerMessage;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
-    private final ConnectionManager connections = new ConnectionManager();
+    private final static ConnectionManager connections = new ConnectionManager();
     private final GameDAO gameDAO;
 
     public WebSocketHandler(GameDAO gameDAO) {
@@ -28,8 +28,8 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         UserGameCommand command = JsonSerializer.fromJson(ctx.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command.getAuthToken(), command.getGameID(), ctx.session);
-//            case MAKE_MOVE -> ;
+            case CONNECT -> connect(command, ctx.session);
+            case MAKE_MOVE -> makeMove(command);
 //            case LEAVE -> ;
 //            case RESIGN -> ;
         }
@@ -40,13 +40,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(String authToken, int gameID, Session session) throws Exception {
+    private void connect(UserGameCommand command, Session session) throws Exception {
+        int gameID = command.getGameID();
+        ChessGame game = gameDAO.getGame(gameID).game();
+
         connections.add(session, gameID);
-        GameData game = gameDAO.getGame(gameID);
-        ServerMessage gameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game.game());
-        ServerMessage playerJoinedMessage = new ServerMessage(ServerMessage.ServerMessageType.NOTIFICATION);
+
+        ServerMessage gameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        ServerMessage playerJoinedMessage = new ServerMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                command.getBroadcastMessage()
+        );
 
         connections.sendTo(session, gameID, gameMessage);
         connections.broadcast(session, gameID, playerJoinedMessage);
+    }
+
+    private void makeMove(UserGameCommand command) throws Exception {
+        ChessGame game = gameDAO.getGame(command.getGameID()).game();
+
+        game.makeMove(command.getMove());
+
+        ServerMessage gameUpdateMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
+        ServerMessage moveMadeMessage = new ServerMessage(
+                ServerMessage.ServerMessageType.NOTIFICATION,
+                command.getBroadcastMessage()
+        );
+
+        connections.broadcast(null, command.getGameID(), gameUpdateMessage);
+        connections.broadcast(null, command.getGameID(), moveMadeMessage);
     }
 }

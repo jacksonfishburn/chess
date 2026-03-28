@@ -1,9 +1,10 @@
 package dataaccess;
 
 import chess.ChessGame;
-import com.google.gson.Gson;
 import exceptions.DataAccessException;
+import json.JsonSerializer;
 import models.GameData;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,7 +39,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
     public int createGame(String username, String gameName) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "INSERT INTO games (gameID, gameName, game) VALUES (?, ?, ?)";
-            String game = new Gson().toJson(new ChessGame());
+            String game = JsonSerializer.toJson(new ChessGame());
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, ++currentID);
@@ -72,12 +73,13 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
         }
     }
 
-    private GameData makeGameData(ResultSet rs) throws Exception {
+    @NotNull
+    private GameData makeGameData(@NotNull ResultSet rs) throws Exception {
         int gameID = rs.getInt("gameID");
         String whiteUserName = rs.getString("whiteUsername");
         String blackUserName = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
-        ChessGame game = new Gson().fromJson(rs.getString("game"), ChessGame.class);
+        ChessGame game = JsonSerializer.fromJson(rs.getString("game"), ChessGame.class);
 
         return new GameData(gameID, whiteUserName, blackUserName, gameName, game);
     }
