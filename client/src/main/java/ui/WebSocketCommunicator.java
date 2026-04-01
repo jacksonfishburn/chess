@@ -2,6 +2,8 @@ package ui;
 
 import exceptions.BadResponseException;
 import json.JsonSerializer;
+import websocket.commands.UserGameCommand;
+import websocket.messages.LoadGameMessage;
 import websocket.messages.ServerMessage;
 
 import jakarta.websocket.*;
@@ -10,9 +12,11 @@ import java.net.URI;
 
 public class WebSocketCommunicator extends Endpoint {
 
-    Session session;
+    private final Session session;
+    private final ServerMessageManager messageManager;
 
-    public WebSocketCommunicator(String url) {
+    public WebSocketCommunicator(String url, ServerMessageManager messageManager) {
+        this.messageManager = messageManager;
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");
@@ -30,10 +34,30 @@ public class WebSocketCommunicator extends Endpoint {
         this.session.addMessageHandler(new MessageHandler.Whole<String>() {
             @Override
             public void onMessage(String message) {
-                ServerMessage serverMessage = JsonSerializer.fromJson(message, ServerMessage.class);
+                handleMessage(message);
             }
         });
     }
+
+    public void handleMessage(String jsonMessage) {
+        ServerMessage serverMessage = JsonSerializer.fromJson(jsonMessage, ServerMessage.class);
+        switch (serverMessage.getServerMessageType()) {
+            case LOAD_GAME -> messageManager.loadGame(JsonSerializer.fromJson(jsonMessage, LoadGameMessage.class));
+//            case NOTIFICATION ->
+//            case ERROR -> ;
+        }
+    }
+
+    public void sendCommand(UserGameCommand command) {
+        try {
+            String jsonCommand = JsonSerializer.toJson(command);
+            this.session.getBasicRemote().sendText(jsonCommand);
+        } catch (Exception ex) {
+            throw new BadResponseException(ex.getMessage(), 500);
+        }
+    }
+
+
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {

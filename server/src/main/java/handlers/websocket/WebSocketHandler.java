@@ -5,9 +5,11 @@ import dataaccess.GameDAO;
 import io.javalin.websocket.*;
 import json.JsonSerializer;
 import org.jetbrains.annotations.NotNull;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
-import websocket.messages.ServerMessage;
+import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
@@ -27,9 +29,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         UserGameCommand command = JsonSerializer.fromJson(ctx.message(), UserGameCommand.class);
+        String jsonCommand = ctx.message();
         switch (command.getCommandType()) {
-            case CONNECT -> connect(command, ctx.session);
-            case MAKE_MOVE -> makeMove(command);
+            case CONNECT -> connect(jsonCommand, ctx.session);
+            case MAKE_MOVE -> makeMove(jsonCommand);
 //            case LEAVE -> ;
 //            case RESIGN -> ;
         }
@@ -40,32 +43,29 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(UserGameCommand command, Session session) throws Exception {
+    private void connect(String jsonCommand, Session session) throws Exception {
+        UserGameCommand command = JsonSerializer.fromJson(jsonCommand, UserGameCommand.class);
         int gameID = command.getGameID();
         ChessGame game = gameDAO.getGame(gameID).game();
 
         connections.add(session, gameID);
 
-        ServerMessage gameMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-        ServerMessage playerJoinedMessage = new ServerMessage(
-                ServerMessage.ServerMessageType.NOTIFICATION,
-                command.getBroadcastMessage()
-        );
+        LoadGameMessage gameMessage = new LoadGameMessage(game, command.isWhite());
+        NotificationMessage playerJoinedMessage = new NotificationMessage("player joined");
 
         connections.sendTo(session, gameID, gameMessage);
         connections.broadcast(session, gameID, playerJoinedMessage);
     }
 
-    private void makeMove(UserGameCommand command) throws Exception {
+    private void makeMove(String jsonCommand) throws Exception {
+        MakeMoveCommand command = JsonSerializer.fromJson(jsonCommand, MakeMoveCommand.class);
+
         ChessGame game = gameDAO.getGame(command.getGameID()).game();
 
         game.makeMove(command.getMove());
 
-        ServerMessage gameUpdateMessage = new ServerMessage(ServerMessage.ServerMessageType.LOAD_GAME, game);
-        ServerMessage moveMadeMessage = new ServerMessage(
-                ServerMessage.ServerMessageType.NOTIFICATION,
-                command.getBroadcastMessage()
-        );
+        LoadGameMessage gameUpdateMessage = new LoadGameMessage(game, command.isWhite());
+        NotificationMessage moveMadeMessage = new NotificationMessage("player made move");
 
         connections.broadcast(null, command.getGameID(), gameUpdateMessage);
         connections.broadcast(null, command.getGameID(), moveMadeMessage);

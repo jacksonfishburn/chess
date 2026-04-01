@@ -2,15 +2,20 @@ package ui;
 
 import json.JsonSerializer;
 import models.*;
+import websocket.commands.UserGameCommand;
 
 public class ServerFacade {
 
     private String authToken = "notnull";
     private final ClientCommunicator communicator;
+    private final WebSocketCommunicator wsCommunicator;
+    private final ServerMessageManager messageManager;
 
 
     public ServerFacade(String url) {
         communicator = new ClientCommunicator(url);
+        messageManager = new ServerMessageManager();
+        wsCommunicator = new WebSocketCommunicator(url, messageManager);
     }
 
     public SessionStartResult login(String username, String password) throws Exception {
@@ -54,6 +59,14 @@ public class ServerFacade {
         String message = JsonSerializer.toJson(request);
 
         communicator.put("/game", message, authToken);
+    }
+
+    public void connectWS(int gameID, boolean isWhite) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.CONNECT,
+                authToken, gameID, isWhite
+        );
+        wsCommunicator.sendCommand(command);
     }
 
     public void clear() throws Exception {

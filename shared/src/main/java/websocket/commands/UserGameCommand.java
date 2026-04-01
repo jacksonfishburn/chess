@@ -16,27 +16,14 @@ public class UserGameCommand {
     private final String authToken;
     private final Integer gameID;
 
-    private final ChessMove move;
-    private final String broadcastMessage;
+    private final boolean isWhite;
 
     public UserGameCommand(CommandType commandType, String authToken,
-                           Integer gameID,
-                           String broadcastMessage) {
+                           Integer gameID, boolean isWhite) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.move = null;
-        this.broadcastMessage = broadcastMessage;
-    }
-
-    public UserGameCommand(CommandType commandType, String authToken,
-                           Integer gameID, ChessMove move,
-                           String broadcastMessage) {
-        this.commandType = commandType;
-        this.authToken = authToken;
-        this.gameID = gameID;
-        this.move = move;
-        this.broadcastMessage = broadcastMessage;
+        this.isWhite = isWhite;
     }
 
     public enum CommandType {
@@ -58,12 +45,8 @@ public class UserGameCommand {
         return gameID;
     }
 
-    public ChessMove getMove() {
-        return move;
-    }
-
-    public String getBroadcastMessage() {
-        return broadcastMessage;
+    public boolean isWhite() {
+        return isWhite;
     }
 
     @Override

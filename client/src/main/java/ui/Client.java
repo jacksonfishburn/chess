@@ -1,7 +1,5 @@
 package ui;
 
-import chess.ChessBoard;
-import chess.ChessGame;
 import exceptions.OutOfRangeException;
 import models.GameInfo;
 import models.ListGameResult;
@@ -200,14 +198,14 @@ public class Client {
             GameInfo game = games.get(gameIndex);
 
             server.joinGame(color, game.gameID());
-            drawBoard(isWhite);
+            server.connectWS(game.gameID(), isWhite);
 
         } catch (NumberFormatException e) {
             System.out.println("\nYou must input a number");
         } catch (OutOfRangeException e) {
             System.out.println("\nA number you gave was invalid");
         } catch (Exception e) {
-            System.out.printf("\n%s\n", e.getMessage());
+            System.out.printf("\nError: %s\n", e.getMessage());
         }
     }
 
@@ -251,8 +249,6 @@ public class Client {
 
             GameInfo game = games.get(gameIndex);
 
-            drawBoard(true);
-
         } catch (NumberFormatException e) {
             System.out.println("\nYou must input a number");
         } catch (OutOfRangeException e) {
@@ -260,13 +256,5 @@ public class Client {
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }
-    }
-
-    private void drawBoard(boolean isWhitePlayer) {
-        ChessGame game = new ChessGame();
-        ChessBoard board = game.getBoard();
-        ui.ChessBoard boardDrawer = new ui.ChessBoard();
-        System.out.print("\n");
-        boardDrawer.drawGame(board, isWhitePlayer);
     }
 }
