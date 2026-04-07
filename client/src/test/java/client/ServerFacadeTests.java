@@ -5,6 +5,7 @@ import models.*;
 import org.junit.jupiter.api.*;
 import server.Server;
 import ui.ServerFacade;
+import ui.ServerMessageManager;
 
 import java.util.List;
 

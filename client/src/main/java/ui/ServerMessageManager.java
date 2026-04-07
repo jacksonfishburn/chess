@@ -3,20 +3,25 @@ package ui;
 import chess.ChessGame;
 import websocket.messages.LoadGameMessage;
 
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+
 public class ServerMessageManager {
 
-    private final ui.ChessBoard boardDrawer;
+    private static CompletableFuture<ChessGame> gameFuture;
 
     public ServerMessageManager() {
-        boardDrawer = new ChessBoard();
     }
 
     public void loadGame(LoadGameMessage message) {
-        ChessGame game = message.getGame();
-        chess.ChessBoard board = game.getBoard();
-        System.out.print("\n");
-        boardDrawer.drawGame(board, message.isWhite());
+        gameFuture.complete(message.getGame());
     }
 
+    public static ChessGame getGame() throws ExecutionException, InterruptedException {
+        return gameFuture.get();
+    }
 
+    public static void resetGame() {
+        gameFuture = new CompletableFuture<>();
+    }
 }

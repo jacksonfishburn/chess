@@ -15,8 +15,8 @@ public class WebSocketCommunicator extends Endpoint {
     private final Session session;
     private final ServerMessageManager messageManager;
 
-    public WebSocketCommunicator(String url, ServerMessageManager messageManager) {
-        this.messageManager = messageManager;
+    public WebSocketCommunicator(String url) {
+        this.messageManager = new ServerMessageManager();
         try {
             url = url.replace("http", "ws");
             URI socketURI = new URI(url + "/ws");

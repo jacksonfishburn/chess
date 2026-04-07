@@ -9,13 +9,11 @@ public class ServerFacade {
     private String authToken = "notnull";
     private final ClientCommunicator communicator;
     private final WebSocketCommunicator wsCommunicator;
-    private final ServerMessageManager messageManager;
 
 
     public ServerFacade(String url) {
         communicator = new ClientCommunicator(url);
-        messageManager = new ServerMessageManager();
-        wsCommunicator = new WebSocketCommunicator(url, messageManager);
+        wsCommunicator = new WebSocketCommunicator(url);
     }
 
     public SessionStartResult login(String username, String password) throws Exception {
@@ -62,6 +60,7 @@ public class ServerFacade {
     }
 
     public void connectWS(int gameID, boolean isWhite) {
+        ServerMessageManager.resetGame();
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
                 authToken, gameID, isWhite

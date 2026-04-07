@@ -1,5 +1,6 @@
 package ui;
 
+import chess.ChessGame;
 import exceptions.OutOfRangeException;
 import models.GameInfo;
 import models.ListGameResult;
@@ -195,10 +196,15 @@ public class Client {
             String color = getTeamColor(inputColor);
             boolean isWhite = Objects.equals(color, "WHITE");
 
-            GameInfo game = games.get(gameIndex);
+            GameInfo gameInfo = games.get(gameIndex);
 
-            server.joinGame(color, game.gameID());
-            server.connectWS(game.gameID(), isWhite);
+            server.joinGame(color, gameInfo.gameID());
+            server.connectWS(gameInfo.gameID(), isWhite);
+
+            ChessGame game = ServerMessageManager.getGame();
+
+            GameplayClient gameplay = new GameplayClient(game, isWhite);
+            gameplay.run();
 
         } catch (NumberFormatException e) {
             System.out.println("\nYou must input a number");
@@ -234,7 +240,7 @@ public class Client {
         }
     }
 
-    private String getInput(String label) {
+    protected String getInput(String label) {
         System.out.print(label);
         return scanner.nextLine().trim();
     }
