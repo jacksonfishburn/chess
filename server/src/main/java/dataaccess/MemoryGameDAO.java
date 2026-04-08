@@ -54,4 +54,12 @@ public class MemoryGameDAO implements GameDAO {
         data = new HashMap<>();
     }
 
+    @Override
+    public void editGameState(int gameID, ChessGame game) throws Exception {
+        GameData currentGame = data.get(gameID);
+        if (currentGame != null) {
+            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), game);
+            data.put(gameID, updatedGame);
+        }
+    }
 }

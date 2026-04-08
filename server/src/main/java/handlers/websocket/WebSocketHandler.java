@@ -99,6 +99,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             String notification = makeMoveNotification(username, move, game.getBoard());
 
             game.makeMove(move);
+            gameDAO.editGameState(command.getGameID(), game);
 
             LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
             NotificationMessage moveMadeMessage = new NotificationMessage(notification);

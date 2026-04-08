@@ -140,4 +140,20 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
         String statement = "DROP TABLE IF EXISTS games";
         clearTable(statement);
     }
+
+    @Override
+    public void editGameState(int gameID, ChessGame game) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET game=? WHERE gameID=?";
+            String gameJson = JsonSerializer.toJson(game);
+
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setString(1, gameJson);
+                ps.setInt(2, gameID);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
+    }
 }
