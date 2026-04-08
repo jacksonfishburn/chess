@@ -44,7 +44,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             case CONNECT -> connect(command, ctx.session);
             case MAKE_MOVE -> makeMove(JsonSerializer.fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
             case LEAVE -> leave(command, ctx.session);
-//            case RESIGN -> ;
+            case RESIGN -> resign(command, ctx.session);
         }
     }
 
@@ -142,6 +142,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         } catch (Exception e) {
             sendErrorMessage(session, e.getMessage());
         }
+    }
+
+    private void resign(UserGameCommand command, Session session) {
+
     }
 
     private NotificationMessage getMoveOutcomeMessage(String username, GameData gameData) {

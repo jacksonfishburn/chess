@@ -27,6 +27,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
               `blackUserName` varchar(256) DEFAULT NULL,
               `gameName` varchar(256) NOT NULL,
               `game` TEXT NOT NULL,
+              `gameOver` boolean NOT NULL DEFAULT false,
               PRIMARY KEY (`gameID`)
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
             """
@@ -38,13 +39,14 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
     @Override
     public int createGame(String username, String gameName) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "INSERT INTO games (gameID, gameName, game) VALUES (?, ?, ?)";
+            var statement = "INSERT INTO games (gameID, gameName, game, gameOver) VALUES (?, ?, ?, ?)";
             String game = JsonSerializer.toJson(new ChessGame());
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, ++currentID);
                 ps.setString(2, gameName);
                 ps.setString(3, game);
+                ps.setBoolean(4, false);
 
                 ps.executeUpdate();
                 return currentID;
@@ -57,7 +59,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
     @Override
     public GameData getGame(int gameID) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games WHERE gameID=?";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, gameOver FROM games WHERE gameID=?";
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setInt(1, gameID);
@@ -80,15 +82,16 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
         String blackUserName = rs.getString("blackUsername");
         String gameName = rs.getString("gameName");
         ChessGame game = JsonSerializer.fromJson(rs.getString("game"), ChessGame.class);
+        boolean gameOver = rs.getBoolean("gameOver");
 
-        return new GameData(gameID, whiteUserName, blackUserName, gameName, game);
+        return new GameData(gameID, whiteUserName, blackUserName, gameName, game, gameOver);
     }
 
     @Override
     public Collection<GameData> listGames() throws Exception {
         Collection<GameData> gameList = new ArrayList<>();
         try (Connection conn = DatabaseManager.getConnection()) {
-            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game FROM games";
+            var statement = "SELECT gameID, whiteUsername, blackUsername, gameName, game, gameOver FROM games";
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 try (ResultSet rs = ps.executeQuery()) {
 
@@ -107,7 +110,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
     public void updateGame(int gameID, String playerColor, String userName) throws Exception {
         try (Connection conn = DatabaseManager.getConnection()) {
             var statement = "UPDATE games SET blackUserName=? WHERE gameID=?";
-            if (Objects.equals(playerColor, "WHITE")) {
+                if (Objects.equals(playerColor, "WHITE")) {
                 statement = "UPDATE games SET whiteUserName=? WHERE gameID=?";
             }
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
@@ -149,6 +152,21 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
 
             try (PreparedStatement ps = conn.prepareStatement(statement)) {
                 ps.setString(1, gameJson);
+                ps.setInt(2, gameID);
+                ps.executeUpdate();
+            }
+        } catch (SQLException e) {
+            throw new DataAccessException("failed to get connection", e);
+        }
+    }
+
+    @Override
+    public void markGameOver(int gameID) throws Exception {
+        try (Connection conn = DatabaseManager.getConnection()) {
+            var statement = "UPDATE games SET gameOver=? WHERE gameID=?";
+
+            try (PreparedStatement ps = conn.prepareStatement(statement)) {
+                ps.setBoolean(1, true);
                 ps.setInt(2, gameID);
                 ps.executeUpdate();
             }

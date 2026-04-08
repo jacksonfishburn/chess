@@ -12,5 +12,6 @@ public interface GameDAO {
     void updateGame(int gameID, String playerColor, String userName) throws Exception;
     boolean isNameTaken(String name) throws Exception;
     void editGameState(int gameID, ChessGame game) throws Exception;
+    void markGameOver(int gameID) throws Exception;
     void clear() throws Exception;
 }

@@ -13,7 +13,7 @@ public class MemoryGameDAO implements GameDAO {
 
     @Override
     public int createGame(String username, String gameName) {
-        GameData game =  new GameData(currentID, null, null, gameName, new ChessGame());
+        GameData game =  new GameData(currentID, null, null, gameName, new ChessGame(), false);
         data.put(currentID, game);
         return currentID++;
     }
@@ -34,9 +34,9 @@ public class MemoryGameDAO implements GameDAO {
         GameData newGame;
 
         if (Objects.equals(playerColor, "WHITE")) {
-            newGame = new GameData(gameID, userName, game.blackUserName(), game.gameName(), game.game());
+            newGame = new GameData(gameID, userName, game.blackUserName(), game.gameName(), game.game(), game.gameOver());
         } else {
-            newGame = new GameData(gameID, game.whiteUserName(), userName, game.gameName(), game.game());
+            newGame = new GameData(gameID, game.whiteUserName(), userName, game.gameName(), game.game(), game.gameOver());
         }
         data.put(gameID, newGame);
     }
@@ -55,10 +55,19 @@ public class MemoryGameDAO implements GameDAO {
     }
 
     @Override
-    public void editGameState(int gameID, ChessGame game) throws Exception {
+    public void editGameState(int gameID, ChessGame game) {
         GameData currentGame = data.get(gameID);
         if (currentGame != null) {
-            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), game);
+            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), game, currentGame.gameOver());
+            data.put(gameID, updatedGame);
+        }
+    }
+
+    @Override
+    public void markGameOver(int gameID) {
+        GameData currentGame = data.get(gameID);
+        if (currentGame != null) {
+            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), currentGame.game(), true);
             data.put(gameID, updatedGame);
         }
     }
