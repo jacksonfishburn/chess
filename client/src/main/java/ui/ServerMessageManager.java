@@ -19,7 +19,9 @@ public class ServerMessageManager {
     }
 
     public void notify(NotificationMessage message) {
+        System.out.print("\nNotification: ");
         System.out.println(message.getMessage());
+        System.out.print("\n-> ");
     }
 
     public static ChessGame getGame() throws ExecutionException, InterruptedException {

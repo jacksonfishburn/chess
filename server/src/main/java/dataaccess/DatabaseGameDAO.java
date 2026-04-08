@@ -50,7 +50,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
                 return currentID;
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
+            throw new DataAccessException("failed to get connection", e);
         }
     }
 
@@ -69,7 +69,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
+            throw new DataAccessException("failed to get connection", e);
         }
     }
 
@@ -99,7 +99,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
+            throw new DataAccessException("failed to get connection", e);
         }
     }
 
@@ -116,7 +116,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
                 ps.executeUpdate();
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
+            throw new DataAccessException("failed to get connection", e);
         }
     }
 
@@ -131,7 +131,7 @@ public class DatabaseGameDAO extends DatabaseBaseDAO implements GameDAO{
                 }
             }
         } catch (SQLException e) {
-            throw new DataAccessException("Error: failed to get connection", e);
+            throw new DataAccessException("failed to get connection", e);
         }
     }
 

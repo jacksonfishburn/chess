@@ -6,6 +6,7 @@ import chess.ChessPiece;
 import chess.ChessPosition;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
+import exceptions.UnauthorizedException;
 import io.javalin.websocket.*;
 import json.JsonSerializer;
 import models.GameData;
@@ -14,6 +15,7 @@ import service.AuthService;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
@@ -37,10 +39,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     @Override
     public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
         UserGameCommand command = JsonSerializer.fromJson(ctx.message(), UserGameCommand.class);
-        String jsonCommand = ctx.message();
         switch (command.getCommandType()) {
-            case CONNECT -> connect(jsonCommand, ctx.session);
-            case MAKE_MOVE -> makeMove(jsonCommand);
+            case CONNECT -> connect(command, ctx.session);
+            case MAKE_MOVE -> makeMove(JsonSerializer.fromJson(ctx.message(), MakeMoveCommand.class));
 //            case LEAVE -> ;
 //            case RESIGN -> ;
         }
@@ -51,27 +52,34 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         System.out.println("Websocket closed");
     }
 
-    private void connect(String jsonCommand, Session session) throws Exception {
-        UserGameCommand command = JsonSerializer.fromJson(jsonCommand, UserGameCommand.class);
+    private void connect(UserGameCommand command, Session session) {
+        try {
+            String username = authService.authorize(command.getAuthToken());
 
-        String username = authService.authorize(command.getAuthToken());
+            int gameID = command.getGameID();
+            GameData gameData = gameDAO.getGame(gameID);
+            if (gameData == null) {
+                sendErrorMessage(session, "Game not found");
+                return;
+            }
 
-        int gameID = command.getGameID();
-        GameData gameData = gameDAO.getGame(gameID);
+            connections.add(session, gameID);
 
-        connections.add(session, gameID);
+            String notification = makeJoinNotification(username, gameData);
 
-        String notification = makeJoinNotification(username, gameData);
+            LoadGameMessage gameMessage = new LoadGameMessage(gameData.game());
+            NotificationMessage playerJoinedMessage = new NotificationMessage(notification);
 
-        LoadGameMessage gameMessage = new LoadGameMessage(gameData.game());
-        NotificationMessage playerJoinedMessage = new NotificationMessage(notification);
-
-        connections.sendTo(session, gameID, gameMessage);
-        connections.broadcast(session, gameID, playerJoinedMessage);
+            connections.sendTo(session, gameMessage);
+            connections.broadcast(session, gameID, playerJoinedMessage);
+        } catch (UnauthorizedException e) {
+            sendErrorMessage(session, "Invalid auth token");
+        } catch (Exception e) {
+            sendErrorMessage(session, e.getMessage());
+        }
     }
 
-    private void makeMove(String jsonCommand) throws Exception {
-        MakeMoveCommand command = JsonSerializer.fromJson(jsonCommand, MakeMoveCommand.class);
+    private void makeMove(MakeMoveCommand command) throws Exception {
         String username = authService.authorize(command.getAuthToken());
         GameData gameData = gameDAO.getGame(command.getGameID());
         ChessGame game = gameData.game();
@@ -110,5 +118,10 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         String endPos = String.format("%c%d", 'a' + endPosition.getColumn() - 1, endPosition.getRow());
 
         return String.format("%s moved their %s from %s to %s", username, pieceType, startPos, endPos);
+    }
+
+    private void sendErrorMessage(Session session, String message) {
+        ErrorMessage errorMessage = new ErrorMessage("Error: " + message);
+        connections.sendTo(session, errorMessage);
     }
 }

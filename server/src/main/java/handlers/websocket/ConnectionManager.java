@@ -21,26 +21,31 @@ public class ConnectionManager {
         }
     }
 
-    public void broadcast(Session excludeSession, int gameID, ServerMessage message) throws IOException {
+    public void broadcast(Session excludeSession, int gameID, ServerMessage message) {
         String msg = JsonSerializer.toJson(message);
         Set<Session> players = connections.getOrDefault(gameID, Set.of());
         for (Session session : players) {
             if (session.isOpen()) {
                 if (!session.equals(excludeSession)) {
-                    session.getRemote().sendString(msg);
+                    try {
+                        session.getRemote().sendString(msg);
+                    } catch (IOException e) {
+                        System.err.printf("WS Broadcast failed. Removing session %s in game %s: %s%n",
+                                session, gameID, e.getMessage());
+                        remove(session, gameID);
+                    }
                 }
             }
         }
     }
 
-    public void sendTo(Session session, int gameID, ServerMessage message) throws IOException {
+    public void sendTo(Session session, ServerMessage message) {
         String msg = JsonSerializer.toJson(message);
-        Set<Session> players = connections.getOrDefault(gameID, Set.of());
-        for (Session s : players) {
-            if (s.isOpen()) {
-                if (s.equals(session)) {
-                    s.getRemote().sendString(msg);
-                }
+        if (session != null && session.isOpen()) {
+            try {
+                session.getRemote().sendString(msg);
+            } catch (IOException e) {
+                System.err.printf("WS Send failed for session %s: %s%n", session, e.getMessage());
             }
         }
     }
