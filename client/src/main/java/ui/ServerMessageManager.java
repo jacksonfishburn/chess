@@ -1,6 +1,7 @@
 package ui;
 
 import chess.ChessGame;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
@@ -21,6 +22,12 @@ public class ServerMessageManager {
     public void notify(NotificationMessage message) {
         System.out.print("\nNotification: ");
         System.out.println(message.getMessage());
+        System.out.print("\n-> ");
+    }
+
+    public void displayError(ErrorMessage message) {
+        System.out.print("\n");
+        System.out.println(message.getErrorMessage());
         System.out.print("\n-> ");
     }
 

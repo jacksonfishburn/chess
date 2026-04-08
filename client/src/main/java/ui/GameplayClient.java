@@ -67,6 +67,10 @@ public class GameplayClient {
         System.out.println("6. Highlight Legal Moves\n");
     }
 
+    private void leave() {
+
+    }
+
     public void drawBoard(boolean isWhite) {
         chess.ChessBoard board = game.getBoard();
         ui.ChessBoard boardDrawer = new ChessBoard();

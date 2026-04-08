@@ -3,6 +3,7 @@ package ui;
 import exceptions.BadResponseException;
 import json.JsonSerializer;
 import websocket.commands.UserGameCommand;
+import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
@@ -32,12 +33,7 @@ public class WebSocketCommunicator extends Endpoint {
     }
 
     private void addMessageHandler() {
-        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
-            @Override
-            public void onMessage(String message) {
-                handleMessage(message);
-            }
-        });
+        this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
     }
 
     public void handleMessage(String jsonMessage) {
@@ -45,7 +41,7 @@ public class WebSocketCommunicator extends Endpoint {
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME -> messageManager.loadGame(JsonSerializer.fromJson(jsonMessage, LoadGameMessage.class));
             case NOTIFICATION -> messageManager.notify(JsonSerializer.fromJson(jsonMessage, NotificationMessage.class));
-//            case ERROR -> ;
+            case ERROR -> messageManager.displayError(JsonSerializer.fromJson(jsonMessage, ErrorMessage.class));
         }
     }
 

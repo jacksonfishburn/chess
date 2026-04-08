@@ -1,7 +1,9 @@
 package ui;
 
+import chess.ChessMove;
 import json.JsonSerializer;
 import models.*;
+import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 
 public class ServerFacade {
@@ -66,6 +68,30 @@ public class ServerFacade {
         ServerMessageManager.resetGame();
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
+                authToken, gameID
+        );
+        wsCommunicator.sendCommand(command);
+    }
+
+    public void makeMove(int gameID, ChessMove move) {
+        MakeMoveCommand command = new MakeMoveCommand(
+                UserGameCommand.CommandType.MAKE_MOVE,
+                authToken, gameID, move
+        );
+        wsCommunicator.sendCommand(command);
+    }
+
+    public void leaveGame(int gameID) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.LEAVE,
+                authToken, gameID
+        );
+        wsCommunicator.sendCommand(command);
+    }
+
+    public void resign(int gameID) {
+        UserGameCommand command = new UserGameCommand(
+                UserGameCommand.CommandType.RESIGN,
                 authToken, gameID
         );
         wsCommunicator.sendCommand(command);
