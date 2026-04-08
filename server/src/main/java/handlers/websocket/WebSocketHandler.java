@@ -97,15 +97,20 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             String notification = makeMoveNotification(username, move, game.getBoard());
-
             game.makeMove(move);
             gameDAO.editGameState(command.getGameID(), game);
 
             LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
             NotificationMessage moveMadeMessage = new NotificationMessage(notification);
+            NotificationMessage moveOutcomeMessage = getMoveOutcomeMessage(username, gameData);
 
             connections.broadcast(null, command.getGameID(), gameUpdateMessage);
             connections.broadcast(session, command.getGameID(), moveMadeMessage);
+
+            if (moveOutcomeMessage != null) {
+                connections.broadcast(null, command.getGameID(), moveOutcomeMessage);
+            }
+
         } catch (UnauthorizedException e) {
             sendErrorMessage(session, "Invalid auth token");
         } catch (InvalidMoveException e) {
@@ -115,15 +120,40 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
+    private NotificationMessage getMoveOutcomeMessage(String username, GameData gameData) {
+        ChessGame.TeamColor opponentColor = (getPlayerColor(username, gameData) == ChessGame.TeamColor.WHITE) ?
+                ChessGame.TeamColor.BLACK : ChessGame.TeamColor.WHITE;
+        NotificationMessage moveOutcomeMessage;
+        ChessGame game = gameData.game();
+
+        if (game.isInCheckmate(opponentColor)) {
+            moveOutcomeMessage = new NotificationMessage("Checkmate. " + username + " wins");
+        } else if (game.isInCheck(opponentColor)) {
+            moveOutcomeMessage = new NotificationMessage("Check");
+        } else if (game.isInStalemate(opponentColor)) {
+            moveOutcomeMessage = new NotificationMessage("Stalemate. Draw.");
+        } else {
+            moveOutcomeMessage = null;
+        }
+         return moveOutcomeMessage;
+    }
+
+
+    private ChessGame.TeamColor getPlayerColor(String username, GameData gameData) {
+        if (username.equals(gameData.whiteUserName())) {
+            return ChessGame.TeamColor.WHITE;
+        } else if (username.equals(gameData.blackUserName())) {
+            return ChessGame.TeamColor.BLACK;
+        } else {
+            return null;
+        }
+    }
+
     private boolean validateMoveRequest(String username, GameData gameData, ChessMove move, Session session) {
         ChessGame game = gameData.game();
-        ChessGame.TeamColor playerColor;
+        ChessGame.TeamColor playerColor = getPlayerColor(username, gameData);
 
-        if (username.equals(gameData.whiteUserName())) {
-            playerColor = ChessGame.TeamColor.WHITE;
-        } else if (username.equals(gameData.blackUserName())) {
-            playerColor = ChessGame.TeamColor.BLACK;
-        } else {
+        if (playerColor == null) {
             sendErrorMessage(session, "Observers cannot make moves");
             return false;
         }
