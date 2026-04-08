@@ -104,6 +104,14 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             NotificationMessage moveMadeMessage = new NotificationMessage(notification);
             NotificationMessage moveOutcomeMessage = getMoveOutcomeMessage(username, gameData);
 
+            boolean gameEnded = game.isInCheckmate(ChessGame.TeamColor.WHITE)
+                    || game.isInCheckmate(ChessGame.TeamColor.BLACK)
+                    || game.isInStalemate(ChessGame.TeamColor.WHITE)
+                    || game.isInStalemate(ChessGame.TeamColor.BLACK);
+            if (gameEnded) {
+                gameDAO.markGameOver(command.getGameID());
+            }
+
             connections.broadcast(null, command.getGameID(), gameUpdateMessage);
             connections.broadcast(session, command.getGameID(), moveMadeMessage);
 
@@ -130,8 +138,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             }
 
             connections.remove(session, command.getGameID());
-            if (getPlayerColor(username, gameData) != null) {
-                gameDAO.updateGame(command.getGameID(), getPlayerColor(username, gameData).name(), null);
+            ChessGame.TeamColor playerColor = getPlayerColor(username, gameData);
+            if (playerColor != null) {
+                gameDAO.updateGame(command.getGameID(), playerColor.name(), null);
             }
 
             String notification = String.format("%s left the game", username);
@@ -145,7 +154,32 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     private void resign(UserGameCommand command, Session session) {
+        try {
+            String username = authService.authorize(command.getAuthToken());
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                sendErrorMessage(session, "Game not found");
+                return;
+            }
 
+            if (gameData.gameOver()) {
+                sendErrorMessage(session, "Game is over");
+                return;
+            }
+
+            if (getPlayerColor(username, gameData) == null) {
+                sendErrorMessage(session, "Observers cannot resign");
+                return;
+            }
+
+            gameDAO.markGameOver(command.getGameID());
+            NotificationMessage resignedMessage = new NotificationMessage(username + " resigned. Game is over");
+            connections.broadcast(null, command.getGameID(), resignedMessage);
+        } catch (UnauthorizedException e) {
+            sendErrorMessage(session, "Invalid auth token");
+        } catch (Exception e) {
+            sendErrorMessage(session, e.getMessage());
+        }
     }
 
     private NotificationMessage getMoveOutcomeMessage(String username, GameData gameData) {
@@ -186,8 +220,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return false;
         }
 
-        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)
-                || game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+        if (gameData.gameOver()) {
             sendErrorMessage(session, "Game is over");
             return false;
         }
