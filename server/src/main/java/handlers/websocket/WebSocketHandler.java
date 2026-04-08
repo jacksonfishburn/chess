@@ -43,7 +43,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, ctx.session);
             case MAKE_MOVE -> makeMove(JsonSerializer.fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
-//            case LEAVE -> ;
+            case LEAVE -> leave(command, ctx.session);
 //            case RESIGN -> ;
         }
     }
@@ -115,6 +115,30 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             sendErrorMessage(session, "Invalid auth token");
         } catch (InvalidMoveException e) {
             sendErrorMessage(session, "Invalid move");
+        } catch (Exception e) {
+            sendErrorMessage(session, e.getMessage());
+        }
+    }
+
+    private void leave(UserGameCommand command, Session session) {
+        try {
+            String username = authService.authorize(command.getAuthToken());
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                sendErrorMessage(session, "Game not found");
+                return;
+            }
+
+            connections.remove(session, command.getGameID());
+            if (getPlayerColor(username, gameData) != null) {
+                gameDAO.updateGame(command.getGameID(), getPlayerColor(username, gameData).name(), null);
+            }
+
+            String notification = String.format("%s left the game", username);
+            NotificationMessage playerLeftMessage = new NotificationMessage(notification);
+            connections.broadcast(null, command.getGameID(), playerLeftMessage);
+        } catch (UnauthorizedException e) {
+            sendErrorMessage(session, "Invalid auth token");
         } catch (Exception e) {
             sendErrorMessage(session, e.getMessage());
         }
