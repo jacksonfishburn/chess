@@ -4,6 +4,7 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPiece;
 import chess.ChessPosition;
+import chess.InvalidMoveException;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import exceptions.UnauthorizedException;
@@ -37,11 +38,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     }
 
     @Override
-    public void handleMessage(@NotNull WsMessageContext ctx) throws Exception {
+    public void handleMessage(@NotNull WsMessageContext ctx) {
         UserGameCommand command = JsonSerializer.fromJson(ctx.message(), UserGameCommand.class);
         switch (command.getCommandType()) {
             case CONNECT -> connect(command, ctx.session);
-            case MAKE_MOVE -> makeMove(JsonSerializer.fromJson(ctx.message(), MakeMoveCommand.class));
+            case MAKE_MOVE -> makeMove(JsonSerializer.fromJson(ctx.message(), MakeMoveCommand.class), ctx.session);
 //            case LEAVE -> ;
 //            case RESIGN -> ;
         }
@@ -79,21 +80,82 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         }
     }
 
-    private void makeMove(MakeMoveCommand command) throws Exception {
-        String username = authService.authorize(command.getAuthToken());
-        GameData gameData = gameDAO.getGame(command.getGameID());
+    private void makeMove(MakeMoveCommand command, Session session) {
+        try {
+            String username = authService.authorize(command.getAuthToken());
+            GameData gameData = gameDAO.getGame(command.getGameID());
+            if (gameData == null) {
+                sendErrorMessage(session, "Game not found");
+                return;
+            }
+
+            ChessGame game = gameData.game();
+            ChessMove move = command.getMove();
+
+            if (!validateMoveRequest(username, gameData, move, session)) {
+                return;
+            }
+
+            String notification = makeMoveNotification(username, move, game.getBoard());
+
+            game.makeMove(move);
+
+            LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
+            NotificationMessage moveMadeMessage = new NotificationMessage(notification);
+
+            connections.broadcast(null, command.getGameID(), gameUpdateMessage);
+            connections.broadcast(session, command.getGameID(), moveMadeMessage);
+        } catch (UnauthorizedException e) {
+            sendErrorMessage(session, "Invalid auth token");
+        } catch (InvalidMoveException e) {
+            sendErrorMessage(session, "Invalid move");
+        } catch (Exception e) {
+            sendErrorMessage(session, e.getMessage());
+        }
+    }
+
+    private boolean validateMoveRequest(String username, GameData gameData, ChessMove move, Session session) {
         ChessGame game = gameData.game();
-        ChessMove move = command.getMove();
+        ChessGame.TeamColor playerColor;
 
-        String notification = makeMoveNotification(username, move, game.getBoard());
+        if (username.equals(gameData.whiteUserName())) {
+            playerColor = ChessGame.TeamColor.WHITE;
+        } else if (username.equals(gameData.blackUserName())) {
+            playerColor = ChessGame.TeamColor.BLACK;
+        } else {
+            sendErrorMessage(session, "Observers cannot make moves");
+            return false;
+        }
 
-        game.makeMove(move);
+        if (game.isInCheckmate(ChessGame.TeamColor.WHITE) || game.isInCheckmate(ChessGame.TeamColor.BLACK)
+                || game.isInStalemate(ChessGame.TeamColor.WHITE) || game.isInStalemate(ChessGame.TeamColor.BLACK)) {
+            sendErrorMessage(session, "Game is over");
+            return false;
+        }
 
-        LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
-        NotificationMessage moveMadeMessage = new NotificationMessage(notification);
+        if (game.getTeamTurn() != playerColor) {
+            sendErrorMessage(session, "Not your turn");
+            return false;
+        }
 
-        connections.broadcast(null, command.getGameID(), gameUpdateMessage);
-        connections.broadcast(null, command.getGameID(), moveMadeMessage);
+        ChessPiece piece = game.getBoard().getPiece(move.getStartPosition());
+        if (piece == null) {
+            sendErrorMessage(session, "Invalid move");
+            return false;
+        }
+
+        if (piece.getTeamColor() != playerColor) {
+            sendErrorMessage(session, "You cannot move your opponent's piece");
+            return false;
+        }
+
+        var validMoves = game.validMoves(move.getStartPosition());
+        if (validMoves == null || !validMoves.contains(move)) {
+            sendErrorMessage(session, "Invalid move");
+            return false;
+        }
+
+        return true;
     }
 
     private String makeJoinNotification(String username, GameData game) {
@@ -105,6 +167,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
             return String.format("%s joined as observer", username);
         }
     }
+
 
     private String makeMoveNotification(String username, ChessMove move, chess.ChessBoard board) {
         ChessPosition startPosition = move.getStartPosition();

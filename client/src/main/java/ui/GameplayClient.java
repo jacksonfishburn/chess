@@ -4,10 +4,12 @@ import chess.ChessGame;
 
 public class GameplayClient {
 
+    private final ServerFacade server;
     private final ChessGame game;
     private final boolean isWhite;
 
-    public GameplayClient(ChessGame game, boolean isWhite) {
+    public GameplayClient(ServerFacade server, ChessGame game, boolean isWhite) {
+        this.server = server;
         this.game = game;
         this.isWhite = isWhite;
     }

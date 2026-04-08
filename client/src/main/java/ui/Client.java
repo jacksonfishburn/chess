@@ -202,7 +202,7 @@ public class Client {
 
             ChessGame game = ServerMessageManager.getGame();
 
-            GameplayClient gameplay = new GameplayClient(game, isWhite);
+            GameplayClient gameplay = new GameplayClient(server, game, isWhite);
             gameplay.run();
 
         } catch (NumberFormatException e) {
