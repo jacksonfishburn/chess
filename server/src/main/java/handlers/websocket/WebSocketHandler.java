@@ -1,10 +1,14 @@
 package handlers.websocket;
 
 import chess.ChessGame;
+import chess.ChessMove;
+import chess.ChessPiece;
+import chess.ChessPosition;
 import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import io.javalin.websocket.*;
 import json.JsonSerializer;
+import models.GameData;
 import org.jetbrains.annotations.NotNull;
 import service.AuthService;
 import websocket.commands.MakeMoveCommand;
@@ -18,11 +22,9 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
     private final static ConnectionManager connections = new ConnectionManager();
     private final AuthService authService;
     private final GameDAO gameDAO;
-    private final AuthDAO authDAO;
 
     public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
-        this.authDAO = authDAO;
         authService = new AuthService(authDAO);
     }
 
@@ -53,14 +55,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         UserGameCommand command = JsonSerializer.fromJson(jsonCommand, UserGameCommand.class);
 
         String username = authService.authorize(command.getAuthToken());
-        String notification = String.format("%s joined the game.", username);
 
         int gameID = command.getGameID();
-        ChessGame game = gameDAO.getGame(gameID).game();
+        GameData gameData = gameDAO.getGame(gameID);
 
         connections.add(session, gameID);
 
-        LoadGameMessage gameMessage = new LoadGameMessage(game);
+        String notification = makeJoinNotification(username, gameData);
+
+        LoadGameMessage gameMessage = new LoadGameMessage(gameData.game());
         NotificationMessage playerJoinedMessage = new NotificationMessage(notification);
 
         connections.sendTo(session, gameID, gameMessage);
@@ -69,15 +72,43 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void makeMove(String jsonCommand) throws Exception {
         MakeMoveCommand command = JsonSerializer.fromJson(jsonCommand, MakeMoveCommand.class);
+        String username = authService.authorize(command.getAuthToken());
+        GameData gameData = gameDAO.getGame(command.getGameID());
+        ChessGame game = gameData.game();
+        ChessMove move = command.getMove();
 
-        ChessGame game = gameDAO.getGame(command.getGameID()).game();
+        String notification = makeMoveNotification(username, move, game.getBoard());
 
-        game.makeMove(command.getMove());
+        game.makeMove(move);
 
         LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
-        NotificationMessage moveMadeMessage = new NotificationMessage("player made move");
+        NotificationMessage moveMadeMessage = new NotificationMessage(notification);
 
         connections.broadcast(null, command.getGameID(), gameUpdateMessage);
         connections.broadcast(null, command.getGameID(), moveMadeMessage);
+    }
+
+    private String makeJoinNotification(String username, GameData game) {
+        if (username.equals(game.whiteUserName())) {
+            return String.format("%s joined as white", username);
+        } else if (username.equals(game.blackUserName())) {
+            return String.format("%s joined as black", username);
+        } else {
+            return String.format("%s joined as observer", username);
+        }
+    }
+
+    private String makeMoveNotification(String username, ChessMove move, chess.ChessBoard board) {
+        ChessPosition startPosition = move.getStartPosition();
+        ChessPosition endPosition = move.getEndPosition();
+
+        ChessPiece movedPiece = board.getPiece(startPosition);
+        String pieceType = movedPiece.getPieceType().name().toLowerCase();
+        pieceType = Character.toUpperCase(pieceType.charAt(0)) + pieceType.substring(1);
+
+        String startPos = String.format("%c%d", 'a' + startPosition.getColumn() - 1, startPosition.getRow());
+        String endPos = String.format("%c%d", 'a' + endPosition.getColumn() - 1, endPosition.getRow());
+
+        return String.format("%s moved their %s from %s to %s", username, pieceType, startPos, endPos);
     }
 }

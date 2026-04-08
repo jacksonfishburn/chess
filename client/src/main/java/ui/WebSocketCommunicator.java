@@ -4,6 +4,7 @@ import exceptions.BadResponseException;
 import json.JsonSerializer;
 import websocket.commands.UserGameCommand;
 import websocket.messages.LoadGameMessage;
+import websocket.messages.NotificationMessage;
 import websocket.messages.ServerMessage;
 
 import jakarta.websocket.*;
@@ -43,7 +44,7 @@ public class WebSocketCommunicator extends Endpoint {
         ServerMessage serverMessage = JsonSerializer.fromJson(jsonMessage, ServerMessage.class);
         switch (serverMessage.getServerMessageType()) {
             case LOAD_GAME -> messageManager.loadGame(JsonSerializer.fromJson(jsonMessage, LoadGameMessage.class));
-//            case NOTIFICATION ->
+            case NOTIFICATION -> messageManager.notify(JsonSerializer.fromJson(jsonMessage, NotificationMessage.class));
 //            case ERROR -> ;
         }
     }
@@ -56,8 +57,6 @@ public class WebSocketCommunicator extends Endpoint {
             throw new BadResponseException(ex.getMessage(), 500);
         }
     }
-
-
 
     @Override
     public void onOpen(Session session, EndpointConfig endpointConfig) {
