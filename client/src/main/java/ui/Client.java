@@ -200,9 +200,7 @@ public class Client {
             server.joinGame(color, gameInfo.gameID());
             server.connectWS(gameInfo.gameID());
 
-            ChessGame game = ServerMessageManager.getGame();
-
-            GameplayClient gameplay = new GameplayClient(server, game, isWhite);
+            GameplayClient gameplay = new GameplayClient(server, gameInfo.gameID(), isWhite);
             gameplay.run();
 
         } catch (NumberFormatException e) {
