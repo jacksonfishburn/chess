@@ -16,14 +16,12 @@ public class UserGameCommand {
     private final String authToken;
     private final Integer gameID;
 
-    private final boolean isWhite;
 
     public UserGameCommand(CommandType commandType, String authToken,
-                           Integer gameID, boolean isWhite) {
+                           Integer gameID) {
         this.commandType = commandType;
         this.authToken = authToken;
         this.gameID = gameID;
-        this.isWhite = isWhite;
     }
 
     public enum CommandType {
@@ -45,9 +43,6 @@ public class UserGameCommand {
         return gameID;
     }
 
-    public boolean isWhite() {
-        return isWhite;
-    }
 
     @Override
     public boolean equals(Object o) {

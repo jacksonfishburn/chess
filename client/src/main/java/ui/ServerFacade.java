@@ -7,13 +7,15 @@ import websocket.commands.UserGameCommand;
 public class ServerFacade {
 
     private String authToken = "notnull";
+    private final String url;
+
     private final ClientCommunicator communicator;
-    private final WebSocketCommunicator wsCommunicator;
+    private WebSocketCommunicator wsCommunicator;
 
 
     public ServerFacade(String url) {
+        this.url = url;
         communicator = new ClientCommunicator(url);
-        wsCommunicator = new WebSocketCommunicator(url);
     }
 
     public SessionStartResult login(String username, String password) throws Exception {
@@ -59,11 +61,12 @@ public class ServerFacade {
         communicator.put("/game", message, authToken);
     }
 
-    public void connectWS(int gameID, boolean isWhite) {
+    public void connectWS(int gameID) {
+        wsCommunicator = new WebSocketCommunicator(url);
         ServerMessageManager.resetGame();
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
-                authToken, gameID, isWhite
+                authToken, gameID
         );
         wsCommunicator.sendCommand(command);
     }

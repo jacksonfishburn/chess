@@ -14,10 +14,9 @@ import java.util.Scanner;
 public class Client {
 
     private final ServerFacade server;
-    private final Scanner scanner;
+    private final static Scanner scanner = new Scanner(System.in);
 
     public Client() {
-        scanner = new Scanner(System.in);
         String url = "http://localhost:8080";
         server = new ServerFacade(url);
     }
@@ -199,7 +198,7 @@ public class Client {
             GameInfo gameInfo = games.get(gameIndex);
 
             server.joinGame(color, gameInfo.gameID());
-            server.connectWS(gameInfo.gameID(), isWhite);
+            server.connectWS(gameInfo.gameID());
 
             ChessGame game = ServerMessageManager.getGame();
 
@@ -240,11 +239,6 @@ public class Client {
         }
     }
 
-    protected String getInput(String label) {
-        System.out.print(label);
-        return scanner.nextLine().trim();
-    }
-
     private void observeGame() {
         String gameNum = getInput("\nGame Number: ");
 
@@ -262,5 +256,10 @@ public class Client {
         } catch (Exception e) {
             System.out.printf("\n%s\n", e.getMessage());
         }
+    }
+
+    public static String getInput(String label) {
+        System.out.print(label);
+        return scanner.nextLine().trim();
     }
 }

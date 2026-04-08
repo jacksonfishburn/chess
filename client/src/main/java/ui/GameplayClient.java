@@ -2,7 +2,7 @@ package ui;
 
 import chess.ChessGame;
 
-public class GameplayClient extends Client {
+public class GameplayClient {
 
     private final ChessGame game;
     private final boolean isWhite;
@@ -18,7 +18,7 @@ public class GameplayClient extends Client {
         while (true) {
             printMenu();
 
-            String choice = getInput("-> ");
+            String choice = Client.getInput("-> ");
 
             switch (choice) {
                 case "1":

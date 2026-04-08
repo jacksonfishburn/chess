@@ -1,10 +1,12 @@
 package handlers.websocket;
 
 import chess.ChessGame;
+import dataaccess.AuthDAO;
 import dataaccess.GameDAO;
 import io.javalin.websocket.*;
 import json.JsonSerializer;
 import org.jetbrains.annotations.NotNull;
+import service.AuthService;
 import websocket.commands.MakeMoveCommand;
 import websocket.commands.UserGameCommand;
 import org.eclipse.jetty.websocket.api.Session;
@@ -14,10 +16,14 @@ import websocket.messages.NotificationMessage;
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
     private final static ConnectionManager connections = new ConnectionManager();
+    private final AuthService authService;
     private final GameDAO gameDAO;
+    private final AuthDAO authDAO;
 
-    public WebSocketHandler(GameDAO gameDAO) {
+    public WebSocketHandler(GameDAO gameDAO, AuthDAO authDAO) {
         this.gameDAO = gameDAO;
+        this.authDAO = authDAO;
+        authService = new AuthService(authDAO);
     }
 
     @Override
@@ -45,13 +51,17 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void connect(String jsonCommand, Session session) throws Exception {
         UserGameCommand command = JsonSerializer.fromJson(jsonCommand, UserGameCommand.class);
+
+        String username = authService.authorize(command.getAuthToken());
+        String notification = String.format("%s joined the game.", username);
+
         int gameID = command.getGameID();
         ChessGame game = gameDAO.getGame(gameID).game();
 
         connections.add(session, gameID);
 
-        LoadGameMessage gameMessage = new LoadGameMessage(game, command.isWhite());
-        NotificationMessage playerJoinedMessage = new NotificationMessage("player joined");
+        LoadGameMessage gameMessage = new LoadGameMessage(game);
+        NotificationMessage playerJoinedMessage = new NotificationMessage(notification);
 
         connections.sendTo(session, gameID, gameMessage);
         connections.broadcast(session, gameID, playerJoinedMessage);
@@ -64,7 +74,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
         game.makeMove(command.getMove());
 
-        LoadGameMessage gameUpdateMessage = new LoadGameMessage(game, command.isWhite());
+        LoadGameMessage gameUpdateMessage = new LoadGameMessage(game);
         NotificationMessage moveMadeMessage = new NotificationMessage("player made move");
 
         connections.broadcast(null, command.getGameID(), gameUpdateMessage);

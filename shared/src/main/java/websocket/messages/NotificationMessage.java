@@ -5,7 +5,7 @@ public class NotificationMessage extends ServerMessage {
     private final String message;
 
     public NotificationMessage(String message) {
-        type = ServerMessageType.LOAD_GAME;
+        type = ServerMessageType.NOTIFICATION;
         this.message = message;
     }
 

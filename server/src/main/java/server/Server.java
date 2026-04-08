@@ -31,7 +31,7 @@ public class Server {
             gameDAO = new MemoryGameDAO();
         }
 
-        WebSocketHandler wsHandler = new WebSocketHandler(gameDAO);
+        WebSocketHandler wsHandler = new WebSocketHandler(gameDAO, authDAO);
 
 
         javalin.post("/user", new RegisterHandler(userDAO, authDAO));
