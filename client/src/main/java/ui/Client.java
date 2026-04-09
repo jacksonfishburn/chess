@@ -1,6 +1,5 @@
 package ui;
 
-import chess.ChessGame;
 import exceptions.OutOfRangeException;
 import models.GameInfo;
 import models.ListGameResult;

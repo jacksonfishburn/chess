@@ -25,7 +25,12 @@ public class EnPassant {
 
     private void createMove(ChessMove move, int side) {
         ChessPosition endPos = move.getEndPosition();
-        ChessPosition spot = new ChessPosition(endPos.getRow(), endPos.getColumn() + side);
+        int targetCol = endPos.getColumn() + side;
+        if (targetCol < 1 || targetCol > 8) {
+            return;
+        }
+
+        ChessPosition spot = new ChessPosition(endPos.getRow(), targetCol);
         ChessPiece piece = game.getBoard().getPiece(spot);
 
         if (piece == null) {
