@@ -5,18 +5,24 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerMessageManager {
 
     private static final AtomicReference<ChessGame> game = new AtomicReference<>();
+    private static final List<GameUpdateListener> listeners = new CopyOnWriteArrayList<>();
 
     public ServerMessageManager() {
     }
 
     public void loadGame(LoadGameMessage message) {
         game.set(message.getGame());
+        for (var listener : listeners) {
+            listener.onGameUpdated(message.getGame());
+        }
     }
 
     public void notify(NotificationMessage message) {
@@ -46,7 +52,17 @@ public class ServerMessageManager {
         return currentGame;
     }
 
+    public static void addGameUpdateListener(GameUpdateListener listener) {
+        listeners.add(listener);
+    }
+
+    public static void removeGameUpdateListener(GameUpdateListener listener) {
+        listeners.remove(listener);
+    }
+
     public static void clearGame() {
         game.set(null);
     }
+
+
 }

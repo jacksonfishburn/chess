@@ -6,7 +6,7 @@ import chess.ChessPosition;
 
 import java.util.concurrent.TimeoutException;
 
-public class GameplayClient {
+public class GameplayClient implements GameUpdateListener {
 
     private static final long GAME_LOAD_TIMEOUT_MS = 2000;
 
@@ -22,7 +22,7 @@ public class GameplayClient {
     }
 
     public void run() {
-        drawBoard(isWhite);
+        ServerMessageManager.addGameUpdateListener(this);
         label:
         while (true) {
             getGame();
@@ -53,6 +53,7 @@ public class GameplayClient {
                     break;
             }
         }
+        ServerMessageManager.removeGameUpdateListener(this);
     }
 
     private void printMenu() {
@@ -132,6 +133,7 @@ public class GameplayClient {
         ui.ChessBoard boardDrawer = new ChessBoard();
         System.out.print("\n");
         boardDrawer.drawGame(board, isWhite);
+        System.out.print("\n-> ");
     }
 
     public void getGame() {
@@ -143,5 +145,11 @@ public class GameplayClient {
             Thread.currentThread().interrupt();
             game = null;
         }
+    }
+
+    @Override
+    public void onGameUpdated(ChessGame game) {
+        this.game = game;
+        drawBoard(isWhite);
     }
 }
