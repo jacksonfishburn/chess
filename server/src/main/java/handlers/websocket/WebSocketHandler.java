@@ -22,7 +22,7 @@ import websocket.messages.NotificationMessage;
 
 public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsCloseHandler {
 
-    private final static ConnectionManager connections = new ConnectionManager();
+    private final static ConnectionManager CONNECTIONS = new ConnectionManager();
     private final AuthService authService;
     private final GameDAO gameDAO;
 
@@ -64,15 +64,15 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            connections.add(session, gameID);
+            CONNECTIONS.add(session, gameID);
 
             String notification = makeJoinNotification(username, gameData);
 
             LoadGameMessage gameMessage = new LoadGameMessage(gameData.game());
             NotificationMessage playerJoinedMessage = new NotificationMessage(notification);
 
-            connections.sendTo(session, gameMessage);
-            connections.broadcast(session, gameID, playerJoinedMessage);
+            CONNECTIONS.sendTo(session, gameMessage);
+            CONNECTIONS.broadcast(session, gameID, playerJoinedMessage);
         } catch (UnauthorizedException e) {
             sendErrorMessage(session, "Invalid auth token");
         } catch (Exception e) {
@@ -112,11 +112,11 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 gameDAO.markGameOver(command.getGameID());
             }
 
-            connections.broadcast(null, command.getGameID(), gameUpdateMessage);
-            connections.broadcast(session, command.getGameID(), moveMadeMessage);
+            CONNECTIONS.broadcast(null, command.getGameID(), gameUpdateMessage);
+            CONNECTIONS.broadcast(session, command.getGameID(), moveMadeMessage);
 
             if (moveOutcomeMessage != null) {
-                connections.broadcast(null, command.getGameID(), moveOutcomeMessage);
+                CONNECTIONS.broadcast(null, command.getGameID(), moveOutcomeMessage);
             }
 
         } catch (UnauthorizedException e) {
@@ -137,7 +137,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
                 return;
             }
 
-            connections.remove(session, command.getGameID());
+            CONNECTIONS.remove(session, command.getGameID());
             ChessGame.TeamColor playerColor = getPlayerColor(username, gameData);
             if (playerColor != null) {
                 gameDAO.updateGame(command.getGameID(), playerColor.name(), null);
@@ -145,7 +145,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             String notification = String.format("%s left the game", username);
             NotificationMessage playerLeftMessage = new NotificationMessage(notification);
-            connections.broadcast(null, command.getGameID(), playerLeftMessage);
+            CONNECTIONS.broadcast(null, command.getGameID(), playerLeftMessage);
         } catch (UnauthorizedException e) {
             sendErrorMessage(session, "Invalid auth token");
         } catch (Exception e) {
@@ -174,7 +174,7 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
             gameDAO.markGameOver(command.getGameID());
             NotificationMessage resignedMessage = new NotificationMessage(username + " resigned. Game is over");
-            connections.broadcast(null, command.getGameID(), resignedMessage);
+            CONNECTIONS.broadcast(null, command.getGameID(), resignedMessage);
         } catch (UnauthorizedException e) {
             sendErrorMessage(session, "Invalid auth token");
         } catch (Exception e) {
@@ -277,6 +277,6 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
 
     private void sendErrorMessage(Session session, String message) {
         ErrorMessage errorMessage = new ErrorMessage("Error: " + message);
-        connections.sendTo(session, errorMessage);
+        CONNECTIONS.sendTo(session, errorMessage);
     }
 }

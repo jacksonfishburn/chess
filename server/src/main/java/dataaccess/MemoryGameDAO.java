@@ -34,9 +34,11 @@ public class MemoryGameDAO implements GameDAO {
         GameData newGame;
 
         if (Objects.equals(playerColor, "WHITE")) {
-            newGame = new GameData(gameID, userName, game.blackUserName(), game.gameName(), game.game(), game.gameOver());
+            newGame = new GameData(gameID, userName, game.blackUserName(),
+                    game.gameName(), game.game(), game.gameOver());
         } else {
-            newGame = new GameData(gameID, game.whiteUserName(), userName, game.gameName(), game.game(), game.gameOver());
+            newGame = new GameData(gameID, game.whiteUserName(), userName,
+                    game.gameName(), game.game(), game.gameOver());
         }
         data.put(gameID, newGame);
     }
@@ -58,7 +60,8 @@ public class MemoryGameDAO implements GameDAO {
     public void editGameState(int gameID, ChessGame game) {
         GameData currentGame = data.get(gameID);
         if (currentGame != null) {
-            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), game, currentGame.gameOver());
+            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(),
+                    currentGame.blackUserName(), currentGame.gameName(), game, currentGame.gameOver());
             data.put(gameID, updatedGame);
         }
     }
@@ -67,7 +70,8 @@ public class MemoryGameDAO implements GameDAO {
     public void markGameOver(int gameID) {
         GameData currentGame = data.get(gameID);
         if (currentGame != null) {
-            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(), currentGame.gameName(), currentGame.game(), true);
+            GameData updatedGame = new GameData(gameID, currentGame.whiteUserName(), currentGame.blackUserName(),
+                    currentGame.gameName(), currentGame.game(), true);
             data.put(gameID, updatedGame);
         }
     }

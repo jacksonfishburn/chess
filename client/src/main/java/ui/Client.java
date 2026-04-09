@@ -13,7 +13,7 @@ import java.util.Scanner;
 public class Client {
 
     private final ServerFacade server;
-    private final static Scanner scanner = new Scanner(System.in);
+    private final static Scanner SCANNER = new Scanner(System.in);
 
     public Client() {
         String url = "http://localhost:8080";
@@ -262,6 +262,6 @@ public class Client {
 
     public static String getInput(String label) {
         System.out.print(label);
-        return scanner.nextLine().trim();
+        return SCANNER.nextLine().trim();
     }
 }

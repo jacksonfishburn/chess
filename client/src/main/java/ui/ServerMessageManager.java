@@ -12,15 +12,15 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerMessageManager {
 
-    private static final AtomicReference<ChessGame> game = new AtomicReference<>();
-    private static final List<GameUpdateListener> listeners = new CopyOnWriteArrayList<>();
+    private static final AtomicReference<ChessGame> GAME = new AtomicReference<>();
+    private static final List<GameUpdateListener> LISTENERS = new CopyOnWriteArrayList<>();
 
     public ServerMessageManager() {
     }
 
     public void loadGame(LoadGameMessage message) {
-        game.set(message.getGame());
-        for (var listener : listeners) {
+        GAME.set(message.getGame());
+        for (var listener : LISTENERS) {
             listener.onGameUpdated(message.getGame());
         }
     }
@@ -39,29 +39,29 @@ public class ServerMessageManager {
 
     public static ChessGame getGame(long timeoutMs) throws TimeoutException, InterruptedException {
         long deadline = System.currentTimeMillis() + timeoutMs;
-        ChessGame currentGame = game.get();
+        ChessGame currentGame = GAME.get();
 
         while (currentGame == null) {
             if (System.currentTimeMillis() >= deadline) {
                 throw new TimeoutException("Timed out waiting for game state");
             }
             Thread.sleep(50);
-            currentGame = game.get();
+            currentGame = GAME.get();
         }
 
         return currentGame;
     }
 
     public static void addGameUpdateListener(GameUpdateListener listener) {
-        listeners.add(listener);
+        LISTENERS.add(listener);
     }
 
     public static void removeGameUpdateListener(GameUpdateListener listener) {
-        listeners.remove(listener);
+        LISTENERS.remove(listener);
     }
 
     public static void clearGame() {
-        game.set(null);
+        GAME.set(null);
     }
 
 
