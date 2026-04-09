@@ -5,18 +5,18 @@ import websocket.messages.ErrorMessage;
 import websocket.messages.LoadGameMessage;
 import websocket.messages.NotificationMessage;
 
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class ServerMessageManager {
 
-    private static CompletableFuture<ChessGame> gameFuture;
+    private static final AtomicReference<ChessGame> game = new AtomicReference<>();
 
     public ServerMessageManager() {
     }
 
     public void loadGame(LoadGameMessage message) {
-        gameFuture.complete(message.getGame());
+        game.set(message.getGame());
     }
 
     public void notify(NotificationMessage message) {
@@ -31,11 +31,22 @@ public class ServerMessageManager {
         System.out.print("\n-> ");
     }
 
-    public static ChessGame getGame() throws ExecutionException, InterruptedException {
-        return gameFuture.get();
+    public static ChessGame getGame(long timeoutMs) throws TimeoutException, InterruptedException {
+        long deadline = System.currentTimeMillis() + timeoutMs;
+        ChessGame currentGame = game.get();
+
+        while (currentGame == null) {
+            if (System.currentTimeMillis() >= deadline) {
+                throw new TimeoutException("Timed out waiting for game state");
+            }
+            Thread.sleep(50);
+            currentGame = game.get();
+        }
+
+        return currentGame;
     }
 
-    public static void resetGame() {
-        gameFuture = new CompletableFuture<>();
+    public static void clearGame() {
+        game.set(null);
     }
 }

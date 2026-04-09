@@ -33,7 +33,12 @@ public class WebSocketCommunicator extends Endpoint {
     }
 
     private void addMessageHandler() {
-        this.session.addMessageHandler((MessageHandler.Whole<String>) this::handleMessage);
+        this.session.addMessageHandler(new MessageHandler.Whole<String>() {
+            @Override
+            public void onMessage(String message) {
+                handleMessage(message);
+            }
+        });
     }
 
     public void handleMessage(String jsonMessage) {

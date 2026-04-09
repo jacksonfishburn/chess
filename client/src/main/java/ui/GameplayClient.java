@@ -4,12 +4,14 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 
 public class GameplayClient {
 
+    private static final long GAME_LOAD_TIMEOUT_MS = 2000;
+
     private final ServerFacade server;
-    private ChessGame game = null;
+    private ChessGame game;
     private final int gameID;
     private final boolean isWhite;
 
@@ -23,8 +25,8 @@ public class GameplayClient {
         drawBoard(isWhite);
         label:
         while (true) {
+            getGame();
             printMenu();
-
             String choice = Client.getInput("-> ");
 
             switch (choice) {
@@ -120,16 +122,26 @@ public class GameplayClient {
     }
 
     public void drawBoard(boolean isWhite) {
+        getGame();
+        if (game == null) {
+            System.out.println("Couldn't load game, try again with redraw.");
+            return;
+        }
+
+        chess.ChessBoard board = game.getBoard();
+        ui.ChessBoard boardDrawer = new ChessBoard();
+        System.out.print("\n");
+        boardDrawer.drawGame(board, isWhite);
+    }
+
+    public void getGame() {
         try {
-            game = ServerMessageManager.getGame();
-            chess.ChessBoard board = game.getBoard();
-            ui.ChessBoard boardDrawer = new ChessBoard();
-            System.out.print("\n");
-            boardDrawer.drawGame(board, isWhite);
-        } catch (NullPointerException e) {
-            System.out.println("Game not loaded yet");
-        } catch (ExecutionException | InterruptedException e) {
-            System.out.println("Error loading game");
+            game = ServerMessageManager.getGame(GAME_LOAD_TIMEOUT_MS);
+        } catch (TimeoutException e) {
+            game = null;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            game = null;
         }
     }
 }

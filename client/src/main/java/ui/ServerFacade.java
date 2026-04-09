@@ -64,8 +64,8 @@ public class ServerFacade {
     }
 
     public void connectWS(int gameID) {
+        ServerMessageManager.clearGame();
         wsCommunicator = new WebSocketCommunicator(url);
-        ServerMessageManager.resetGame();
         UserGameCommand command = new UserGameCommand(
                 UserGameCommand.CommandType.CONNECT,
                 authToken, gameID
