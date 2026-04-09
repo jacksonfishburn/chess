@@ -64,6 +64,39 @@ public class GameplayClient implements GameUpdateListener {
         }
     }
 
+    public void observe() {
+        ServerMessageManager.addGameUpdateListener(this);
+        try {
+            label:
+            while (true) {
+                getGame();
+                printObserveMenu();
+                String choice = Client.getInput("-> ");
+
+                switch (choice) {
+                    case "1":
+                        printObserveHelpMenu();
+                        break;
+                    case "2":
+                        drawBoard(isWhite);
+                        break;
+                    case "3":
+                        leave();
+                        break label;
+                    case "4":
+                        highlightLegalMoves();
+                        break;
+                    default:
+                        System.out.println("\nInvalid Input. Enter a number 1-6.");
+                        break;
+                }
+            }
+        } finally {
+            ServerMessageManager.removeGameUpdateListener(this);
+        }
+    }
+
+
     private void printMenu() {
         System.out.println("\n1. Help");
         System.out.println("2. Redraw Chess Board");
@@ -71,6 +104,13 @@ public class GameplayClient implements GameUpdateListener {
         System.out.println("4. Make Move");
         System.out.println("5. Resign");
         System.out.println("6. Highlight Legal Moves\n");
+    }
+
+    private void printObserveMenu() {
+        System.out.println("\n1. Help");
+        System.out.println("2. Redraw Chess Board");
+        System.out.println("3. Leave");
+        System.out.println("4. Highlight Legal Moves\n");
     }
 
     private void printHelpMenu() {
@@ -83,6 +123,13 @@ public class GameplayClient implements GameUpdateListener {
                 "Displays chess board with a selected piece's legal moves highlighted");
     }
 
+    private void printObserveHelpMenu() {
+        System.out.println("\nHelp: Menu option details");
+        System.out.println("Redraw Chess Board: Displays current game board");
+        System.out.println("Leave: Exit game spot without ending game");
+        System.out.println("Highlight Legal Moves: " +
+                "Displays chess board with a selected piece's legal moves highlighted");
+    }
 
     private void leave() {
         server.leaveGame(gameID);
