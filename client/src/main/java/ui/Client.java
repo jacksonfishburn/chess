@@ -250,7 +250,7 @@ public class Client {
             server.connectWS(gameInfo.gameID());
 
             GameplayClient gameplay = new GameplayClient(server, gameInfo.gameID(), isWhite);
-            gameplay.run();
+            gameplay.observe();
         } catch (NumberFormatException e) {
             System.out.println("\nYou must input a number");
         } catch (OutOfRangeException e) {

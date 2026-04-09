@@ -188,10 +188,12 @@ public class WebSocketHandler implements WsConnectHandler, WsMessageHandler, WsC
         NotificationMessage moveOutcomeMessage;
         ChessGame game = gameData.game();
 
+        String opponent = (opponentColor == ChessGame.TeamColor.WHITE) ? gameData.whiteUserName() : gameData.blackUserName();
+
         if (game.isInCheckmate(opponentColor)) {
-            moveOutcomeMessage = new NotificationMessage("Checkmate. " + username + " wins");
+            moveOutcomeMessage = new NotificationMessage(opponent + "is in checkmate. " + username + " wins!");
         } else if (game.isInCheck(opponentColor)) {
-            moveOutcomeMessage = new NotificationMessage("Check");
+            moveOutcomeMessage = new NotificationMessage(username + " has put " + opponent + " in check");
         } else if (game.isInStalemate(opponentColor)) {
             moveOutcomeMessage = new NotificationMessage("Stalemate. Draw.");
         } else {
