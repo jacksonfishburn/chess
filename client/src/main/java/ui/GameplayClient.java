@@ -4,6 +4,8 @@ import chess.ChessGame;
 import chess.ChessMove;
 import chess.ChessPosition;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.concurrent.TimeoutException;
 
 public class GameplayClient implements GameUpdateListener {
@@ -23,37 +25,40 @@ public class GameplayClient implements GameUpdateListener {
 
     public void run() {
         ServerMessageManager.addGameUpdateListener(this);
-        label:
-        while (true) {
-            getGame();
-            printMenu();
-            String choice = Client.getInput("-> ");
+        try {
+            label:
+            while (true) {
+                getGame();
+                printMenu();
+                String choice = Client.getInput("-> ");
 
-            switch (choice) {
-                case "1":
-                    printHelpMenu();
-                    break;
-                case "2":
-                    drawBoard(isWhite);
-                    break;
-                case "3":
-                    leave();
-                    break label;
-                case "4":
-                    makeMove();
-                    break;
-                case "5":
-                    resign();
-                    break label;
-                case "6":
-                    System.out.println("Highlight");
-                    break;
-                default:
-                    System.out.println("\nInvalid Input. Enter a number 1-6.");
-                    break;
+                switch (choice) {
+                    case "1":
+                        printHelpMenu();
+                        break;
+                    case "2":
+                        drawBoard(isWhite);
+                        break;
+                    case "3":
+                        leave();
+                        break label;
+                    case "4":
+                        makeMove();
+                        break;
+                    case "5":
+                        resign();
+                        break label;
+                    case "6":
+                        highlightLegalMoves();
+                        break;
+                    default:
+                        System.out.println("\nInvalid Input. Enter a number 1-6.");
+                        break;
+                }
             }
+        } finally {
+            ServerMessageManager.removeGameUpdateListener(this);
         }
-        ServerMessageManager.removeGameUpdateListener(this);
     }
 
     private void printMenu() {
@@ -96,8 +101,40 @@ public class GameplayClient implements GameUpdateListener {
     }
 
     private void resign() {
-        server.leaveGame(gameID);
+        server.resign(gameID);
         System.out.println("You resigned");
+    }
+
+    private void highlightLegalMoves() {
+        try {
+            if (game == null) {
+                getGame();
+            }
+            if (game == null) {
+                System.out.println("Couldn't load game, try again with redraw.");
+                return;
+            }
+
+            String pieceInput = Client.getInput("Piece Position: ");
+            ChessPosition selectedPosition = parsePosition(pieceInput);
+            Collection<ChessMove> legalMoves = game.validMoves(selectedPosition);
+            if (legalMoves == null) {
+                legalMoves = Collections.emptyList();
+            }
+
+            ChessBoard boardDrawer = new ChessBoard();
+            System.out.print("\n");
+            if (legalMoves.isEmpty()) {
+                boardDrawer.highlightMoves(game.getBoard(), isWhite, selectedPosition, legalMoves);
+            } else {
+                boardDrawer.highlightMoves(game.getBoard(), isWhite, legalMoves);
+            }
+            System.out.print("\n-> ");
+        } catch (IllegalArgumentException e) {
+            System.out.println("Invalid position. Use letter number format (a1, h8, d5).");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
     }
 
     private ChessMove makeMoveFromInput(String startInput, String endInput) {
