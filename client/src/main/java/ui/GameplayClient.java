@@ -47,8 +47,10 @@ public class GameplayClient implements GameUpdateListener {
                         makeMove();
                         break;
                     case "5":
-                        resign();
-                        break label;
+                        if (resign()) {
+                            break label;
+                        }
+                        break;
                     case "6":
                         highlightLegalMoves();
                         break;
@@ -101,9 +103,27 @@ public class GameplayClient implements GameUpdateListener {
         }
     }
 
-    private void resign() {
-        server.resign(gameID);
-        System.out.println("You resigned");
+    private boolean resign() {
+        String confirmation = Client.getInput("Are you sure you want to resign? (y/n): ");
+        if (confirmation == null) {
+            System.out.println("Resign canceled.");
+            return false;
+        }
+
+        String value = confirmation.trim().toLowerCase();
+        if (!value.equals("y")) {
+            System.out.println("Resign canceled.");
+            return false;
+        }
+
+        try {
+            server.resign(gameID);
+            System.out.println("You resigned");
+            return true;
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+            return false;
+        }
     }
 
     private void highlightLegalMoves() {
