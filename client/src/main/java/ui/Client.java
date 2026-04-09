@@ -243,9 +243,14 @@ public class Client {
             List<GameInfo> games = getGameList();
             int gameIndex = Integer.parseInt(gameNum) - 1;
             ensureNumInRange(gameIndex, games.size() - 1);
+            boolean isWhite = true;
 
-            GameInfo game = games.get(gameIndex);
+            GameInfo gameInfo = games.get(gameIndex);
 
+            server.connectWS(gameInfo.gameID());
+
+            GameplayClient gameplay = new GameplayClient(server, gameInfo.gameID(), isWhite);
+            gameplay.run();
         } catch (NumberFormatException e) {
             System.out.println("\nYou must input a number");
         } catch (OutOfRangeException e) {

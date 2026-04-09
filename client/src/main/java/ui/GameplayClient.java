@@ -43,8 +43,8 @@ public class GameplayClient implements GameUpdateListener {
                     makeMove();
                     break;
                 case "5":
-                    System.out.println("Resign");
-                    break;
+                    resign();
+                    break label;
                 case "6":
                     System.out.println("Highlight");
                     break;
@@ -93,6 +93,11 @@ public class GameplayClient implements GameUpdateListener {
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
+    }
+
+    private void resign() {
+        server.leaveGame(gameID);
+        System.out.println("You resigned");
     }
 
     private ChessMove makeMoveFromInput(String startInput, String endInput) {
