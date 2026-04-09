@@ -2,6 +2,7 @@ package ui;
 
 import chess.ChessGame;
 import chess.ChessMove;
+import chess.ChessPiece;
 import chess.ChessPosition;
 
 import java.util.Collection;
@@ -140,7 +141,51 @@ public class GameplayClient implements GameUpdateListener {
     private ChessMove makeMoveFromInput(String startInput, String endInput) {
         ChessPosition start = parsePosition(startInput);
         ChessPosition end = parsePosition(endInput);
-        return new ChessMove(start, end, null);
+
+        ChessPiece.PieceType promotionPiece = getPromotionPiece(start, end);
+
+        return new ChessMove(start, end, promotionPiece);
+    }
+
+    private ChessPiece.PieceType getPromotionPiece(ChessPosition start, ChessPosition end) {
+        int endRow = end.getRow();
+        if (endRow != 1 && endRow != 8) {
+            return null;
+        }
+
+        if (game == null) {
+            getGame();
+        }
+        if (game == null || game.getBoard() == null) {
+            return null;
+        }
+
+        ChessPiece movingPiece = game.getBoard().getPiece(start);
+        if (movingPiece == null || movingPiece.getPieceType() != ChessPiece.PieceType.PAWN) {
+            return null;
+        }
+
+        String promotionInput = Client.getInput("Promote to (R/B/N/Q): ");
+        return inputToPromotionPiece(promotionInput);
+    }
+
+    private ChessPiece.PieceType inputToPromotionPiece(String input) {
+        if (input == null) {
+            System.out.println("Invalid promotion piece. Defaulting to Queen.");
+            return ChessPiece.PieceType.QUEEN;
+        }
+
+        String value = input.trim().toLowerCase();
+        return switch (value) {
+            case "q", "queen" -> ChessPiece.PieceType.QUEEN;
+            case "r", "rook" -> ChessPiece.PieceType.ROOK;
+            case "b", "bishop" -> ChessPiece.PieceType.BISHOP;
+            case "n", "knight" -> ChessPiece.PieceType.KNIGHT;
+            default -> {
+                System.out.println("Invalid promotion piece. Defaulting to Queen.");
+                yield ChessPiece.PieceType.QUEEN;
+            }
+        };
     }
 
     private ChessPosition parsePosition(String input) {
