@@ -1,0 +1,28 @@
+services:
+  db:
+    image: mysql:8
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: Djfmos!10
+      MYSQL_DATABASE: chess
+    volumes:
+      - chess-db:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-pDjfmos!10"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  chess:
+    build: .
+    ports:
+      - "3000:3000"
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DB_HOST: db
+      DB_PORT: 3306
+
+volumes:
+  chess-db:
