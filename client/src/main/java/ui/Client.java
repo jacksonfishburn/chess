@@ -16,7 +16,7 @@ public class Client {
     private final static Scanner SCANNER = new Scanner(System.in);
 
     public Client() {
-        String url = "http://localhost:8080";
+        String url = System.getProperty("SERVER_URL", "http://localhost:8080");
         server = new ServerFacade(url);
     }
 
