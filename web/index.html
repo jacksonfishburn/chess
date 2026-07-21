@@ -70,8 +70,18 @@
       term.write('\r\n\x1b[31mFailed to connect to server.\x1b[0m\r\n');
     };
 
-    // Send keystrokes to the Java client process
+    // Echo keystrokes locally (bridge uses pipes, so Java won't echo)
+    // and forward them to the Java client process
     term.onData((data) => {
+      for (const ch of data) {
+        if (ch === '\r') {
+          term.write('\r\n');
+        } else if (ch === '\u007f' || ch === '\b') {
+          term.write('\b \b');
+        } else if (ch >= ' ' || ch === '\t') {
+          term.write(ch);
+        }
+      }
       if (ws.readyState === WebSocket.OPEN) {
         ws.send(JSON.stringify({ type: 'input', data }));
       }
